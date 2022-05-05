@@ -1,0 +1,11 @@
+#!triglav
+
+type boolean={false,true};
+type person={Conan,Gotrek,Gwaigilion};
+type place={Warszawa,Krakow,Wroclaw,Poznan,Gdansk};
+
+type information={(X:person)_is_in_(Y:place)};
+
+expand(2);
+
+report();

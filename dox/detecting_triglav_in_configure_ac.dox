@@ -1,0 +1,17 @@
+/**
+\page detecting_triglav_in_configure_ac Detecting Triglav in configure.ac.
+
+Add the following line to your configure.ac file:
+
+\code
+PKG_CHECK_MODULES([TRIGLAV], [triglav >= 0.0.0])
+\endcode
+
+Then in the Makefile.am that is supposed to build a program "example" add the following code:
+
+\code
+AM_CXXFLAGS = @CXXFLAGS@ -I.. -I../inc @TRIGLAV_CFLAGS@
+
+example_LDADD = @LIBS@ @TRIGLAV_LIBS@
+\endcode
+*/

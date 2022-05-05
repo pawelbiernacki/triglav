@@ -1,0 +1,20 @@
+/**
+\page generating_cases Generating cases
+
+In order to generate all the cases use the command:
+
+\code
+generate_cases(1, 144);
+\endcode
+
+It should follow the type definitions as well as variable definitions and "expand" command.
+
+The first argument should be a small positive integer, for example 1. It denotes how many
+unusual values may be included in the generated cases.
+
+The command produces files with the names cases_{i}.txt, with {i} being a number from 1 to 144 
+(the amount of case files in the above example).
+
+WARNING: Executing this command may require a long time.
+
+*/

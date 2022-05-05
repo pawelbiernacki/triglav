@@ -1,0 +1,10 @@
+/**
+
+\page using_triglav Using Triglav
+
+Triglav can be used in two ways, either directly, from the command line, or as a library in your own C++ projects.
+
+- \subpage using_triglav_from_command_line 
+- \subpage using_triglav_as_a_library 
+
+*/

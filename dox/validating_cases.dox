@@ -1,0 +1,28 @@
+/**
+
+\page validating_cases Validating cases
+
+This step means checking which of the visible states for the generated cases are valid.
+Usually only items from a certain subset of \f$VS\f$ are valid according to the rules 
+in the Triglav specification (see the examples in the "examples" directory).
+
+You should first find out how many logical processors per machine/how many machines you will have.
+
+You can use the Perl script triglav_generate_validation_lists.pl (installed with triglav) to create
+files with the name "validation_list_{i}.txt" with {i} being an integer from 1 to the amount of 
+the logical processors (if you use a single machine).
+
+The below code is taken from the example5.triglav file. It opens a databank (an XML file "readme.xml"
+created in the previous step) and executes the command validate_cases with the argument 12.
+It is suitable for a single machine with 12 processors.
+In this code the parent process forks creating 12 children processes, each taking the corresponding
+validation list and performs validation of the visible states.
+
+As a result triglav creates the files "valid_visible_states_{i}.txt".
+
+\code
+open_databank("readme.xml");
+validate_cases(12);
+\endcode
+
+*/

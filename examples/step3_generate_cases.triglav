@@ -1,0 +1,43 @@
+#!triglav
+
+#
+# This is a basic example that uses the command "generate_cases" to create 144 cases_*.txt files.
+# It generates the states (combinations of input and hidden variables) without validating them,
+# i.e. without checking with the rules whether the visible state implied by the state is OK.
+#
+# WARNING: Its execution takes 50 days on my machine!!! And the resulting files require 500GB disk space!!!
+# 
+type boolean={false,true},
+    place={Krakow,Warszawa,Wroclaw,Poznan,Gdansk},
+    person={Conan, Gotrek, Gwaigilion},
+    
+    action={doing_nothing, 
+            going_to_(X:place),
+            telling_(Y:person)_(X:information),
+            asking_(X:person)_to_do_(Y:action),
+            asking_(X:person)_whether_(Y:information),
+            attacking_(X:person)},
+    
+    information={(X:person)_is_in_(Y:place),
+                (X:person)_is_(Y:action),
+                (X:person)_thinks_(Y:information),
+                (X:person)_has_told_(Y:person)_(Z:information),
+                (X:person)_has_attacked_(Y:person)};
+    
+input variable where_am_I:place,
+    I_have_won_a_fight:boolean usually {false},
+    I_can_see_(X:person):boolean,
+    (X:person)_is_telling_me_(Y:information):boolean usually {false},
+    (X:person)_is_attacking_me:boolean usually {false};
+    
+output variable I_do:action;
+hidden variable where_is_(X:person):place,
+                (X:person)_can_see_(Y:person):boolean,
+                (X:person)_has_told_(Y:person)_(Z:information):boolean usually {false},
+                (X:person)_has_attacked_(Y:person):boolean usually {false},
+                (X:person)_thinks_(Y:information):boolean usually {false};
+                
+expand(2);
+
+load_databank("readme3.xml");
+generate_cases(1, 144);

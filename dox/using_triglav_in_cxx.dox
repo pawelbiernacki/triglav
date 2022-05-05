@@ -1,0 +1,9 @@
+/**
+\page using_triglav_in_cxx Using Triglav in C++
+
+In order to use Triglav in your C++ program you need to include the triglav.h header file:
+\code
+#include <triglav.h>
+\endcode
+
+*/

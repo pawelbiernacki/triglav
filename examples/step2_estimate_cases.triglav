@@ -1,0 +1,41 @@
+#!triglav
+
+# This script creates a list of estimated cases classes.
+#
+type boolean={false,true},
+    place={Krakow,Warszawa,Wroclaw,Poznan,Gdansk},
+    person={Conan, Gotrek, Gwaigilion},
+    
+    action={doing_nothing, 
+            going_to_(X:place),
+            telling_(Y:person)_(X:information),
+            asking_(X:person)_to_do_(Y:action),
+            asking_(X:person)_whether_(Y:information),
+            attacking_(X:person)},
+    
+    information={(X:person)_is_in_(Y:place),
+                (X:person)_is_(Y:action),
+                (X:person)_thinks_(Y:information),
+                (X:person)_has_told_(Y:person)_(Z:information),
+                (X:person)_has_attacked_(Y:person)};
+    
+input variable where_am_I:place,
+    I_have_won_a_fight:boolean usually {false},
+    I_can_see_(X:person):boolean,
+    (X:person)_is_telling_me_(Y:information):boolean usually {false},
+    (X:person)_is_attacking_me:boolean usually {false};
+    
+output variable I_do:action;
+hidden variable where_is_(X:person):place,
+                (X:person)_can_see_(Y:person):boolean,
+                (X:person)_has_told_(Y:person)_(Z:information):boolean usually {false},
+                (X:person)_has_attacked_(Y:person):boolean usually {false},
+                (X:person)_thinks_(Y:information):boolean usually {false};
+                
+expand(2);
+
+#
+# The argument is a small integer, preferably 1, denoting the amount of
+# input/hidden variables that are allowed unusual values.
+#
+estimate_cases(1); 

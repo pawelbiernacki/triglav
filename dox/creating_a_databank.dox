@@ -1,0 +1,17 @@
+/**
+\page creating_a_databank Creating a databank
+
+In this step we create an XML file called databank. It is describing the precalculated knowledge files.
+
+The command creating such a databank is:
+\code
+save_databank("readme.xml", 144);
+\endcode
+
+See the example4.triglav file in the examples folder. It contains the type definitions as well as the variables
+definitions as well as an "expand" command. Only after expanding the types and variables
+one can save a databank. 
+
+The first argument is the file name, the second is the amount of the cases files generated in the former step.
+
+*/

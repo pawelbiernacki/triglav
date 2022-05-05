@@ -1,0 +1,14 @@
+#!triglav
+
+type boolean={false,true};
+type person={Conan,Gotrek,Gwaigilion};
+type place={Warszawa,Krakow,Wroclaw,Poznan,Gdansk};
+
+#
+# here we define an information recursively
+#
+type information={(X:person)_is_in_(Y:place),(X:person)_thinks_that_(Y:information)};
+
+expand(3);
+
+report();

@@ -1,0 +1,11 @@
+/**
+\page using_triglav_from_command_line Using Triglav from command line
+
+Triglav can be used from the command line as follows:
+
+\code
+triglav <file>
+\endcode
+
+
+*/

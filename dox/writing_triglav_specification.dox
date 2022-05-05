@@ -1,0 +1,36 @@
+/**
+\page writing_triglav_specification Writing a Triglav specification
+
+The skeleton of a Triglav specification are the type definitions. For example:
+
+\code
+type boolean={false,true},
+    place={Krakow,Warszawa,Wroclaw,Poznan,Gdansk},
+    person={Conan, Gotrek, Gwaigilion},
+    
+    action={doing_nothing, 
+            going_to_(X:place),
+            telling_(Y:person)_(X:information),
+            asking_(X:person)_to_do_(Y:action),
+            asking_(X:person)_whether_(Y:information),
+            attacking_(X:person)},
+    
+    information={(X:person)_is_in_(Y:place),
+                (X:person)_is_(Y:action),
+                (X:person)_thinks_(Y:information),
+                (X:person)_has_told_(Y:person)_(Z:information),
+                (X:person)_has_attacked_(Y:person)};
+\endcode
+
+As you can see from the code above there is a mutual dependency between the types action and information.
+These dependencies are shown on the below diagram: 
+
+\image html "action_and_information.png"
+
+Apart from the types definitions we need a command "expand" which takes as an argument an integer literal. For example:
+
+\code
+expand(2);
+\endcode
+
+*/

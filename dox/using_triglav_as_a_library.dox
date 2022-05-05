@@ -1,0 +1,8 @@
+/**
+
+\page using_triglav_as_a_library Using Triglav as a library
+
+- \subpage detecting_triglav_in_configure_ac 
+- \subpage using_triglav_in_cxx 
+
+*/

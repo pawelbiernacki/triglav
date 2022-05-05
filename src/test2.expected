@@ -1,0 +1,9 @@
+type boolean={false,true};
+type person={Conan,Gotrek,Gwaigilion};
+type place={Warszawa,Krakow,Wroclaw,Poznan,Gdansk};
+type information={(X:person)_is_in_(Y:place)};
+type instance boolean:{false,true};
+type instance person:{Conan,Gotrek,Gwaigilion};
+type instance place:{Warszawa,Krakow,Wroclaw,Poznan,Gdansk};
+type instance information:{Conan_is_in_Warszawa,Gotrek_is_in_Warszawa,Gwaigilion_is_in_Warszawa,Conan_is_in_Krakow,Gotrek_is_in_Krakow,Gwaigilion_is_in_Krakow,Conan_is_in_Wroclaw,Gotrek_is_in_Wroclaw,Gwaigilion_is_in_Wroclaw,Conan_is_in_Poznan,Gotrek_is_in_Poznan,Gwaigilion_is_in_Poznan,Conan_is_in_Gdansk,Gotrek_is_in_Gdansk,Gwaigilion_is_in_Gdansk};
+amount_of_actions=0

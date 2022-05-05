@@ -1,0 +1,15 @@
+/**
+
+\page generating_precalculated_knowledge Generating precalculated knowledge
+
+triglav can be used with the so-called precalculated knowledge. Creating it costs usually a lot of time and disk space,
+but it makes triglav very fast. This concept has already been used in Svarog.
+
+The procedure of creating the precalculated knowledge consists of the following steps:
+
+- \subpage generating_cases 
+- \subpage creating_a_databank 
+- \subpage validating_cases 
+- \subpage precalculating  
+
+*/

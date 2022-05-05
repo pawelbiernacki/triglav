@@ -1,0 +1,26 @@
+/**
+\page using_precalculated_knowledge Using precalculated knowledge
+
+In a normal Triglav specification containing the type definitions, variable definitions and expand command
+you need first to open a databank describing the precalculated knowledge files.
+
+Then enter the interactive session with the loop command.
+
+
+\code
+open_databank("readme.xml");
+loop(3);
+\endcode
+
+Then on every prompt you need to pass a name of a text file containing the following lines:
+\code
+<input_variable_instance_name>=<value_instance_name>
+\endcode
+
+This file must exist before you pass its name to triglav. It should contain all the input variable instances
+with their corresponding values.
+
+The argument of the loop command is a small integer indicating the planning depth.
+It should correspond with the precalculating depth.
+
+*/

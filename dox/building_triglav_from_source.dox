@@ -1,0 +1,18 @@
+/**
+\page building_triglav_from_source Building triglav from source
+
+triglav is a program, an interpreter of the Triglav language. It can be built from source as follows:
+
+\code
+./configure
+make
+sudo make install
+\endcode
+
+There are following requirements:
+- a C++ compiler supporting C++ 17 (or more) with concepts
+- flex
+- bison
+- gtkmm-3.0 (devel)
+
+*/

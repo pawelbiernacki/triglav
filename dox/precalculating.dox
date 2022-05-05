@@ -1,0 +1,23 @@
+/**
+\page precalculating Precalculating
+
+In this step we perform the precalculations, i.e. we calculate according to the triglav algorithm
+what is the optimal action to perform in the given case belonging to a valid visible state.
+
+You should first open an existing databank and then use the command precalculate_cases.
+It takes the amount of processes as the first argument. Triglav forks that many child processes
+and precalculates the optimal actions for the planning depth passed as a second argument.
+
+\code
+open_databank("readme.xml");
+precalculate_cases(12, 3);
+\endcode
+
+In this example the amount of processes is 12 and the planning depth equals 3.
+
+Note that if you pass for example the planning depth 3 and you have the precalculated knowledge files
+for the planning depth 2 (or 1) in place then Triglav will use this precalculated knowledge
+rather than calculating the optimal actions. This means it might be reasonable first to make 
+the precalculations for the planning depth 1, then 2 and so on.
+
+*/
