@@ -226,11 +226,8 @@ void command_save_databank::execute(agent & a) const
     
     
     w.start_element("triglav:case_files");
-    
-    std::stringstream s2;
-    s2 << amount_of_case_files;
-    
-    w.write_attribute("amount", s2.str());
+        
+    w.write_attribute("amount", "1");   // this amount should be replaced by something larger than the amount of processors, possibly a multiple of it
     w.write_attribute("prefix", "cases_");
     w.write_attribute("extension", "txt");
     w.write_attribute("path", ".");
@@ -240,13 +237,15 @@ void command_save_databank::execute(agent & a) const
     w.start_element("triglav:validation_range");
     w.end_element(); // validation range
     
+    w.start_element("triglav:generator");
+    w.write_attribute("max_amount_of_unusual_values", "1");
+    w.end_element(); // generator
     
     w.start_element("triglav:machine");
-    w.write_attribute("amount_of_processors", "1");
+    w.write_attribute("amount_of_processors", "1"); 
     w.end_element();        
     
     w.start_element("triglav:visible_states");
-    w.write_attribute("amount", "???");
     w.write_attribute("prefix", "visible_state_");
     w.write_attribute("extension", "txt");
     w.write_attribute("path", ".");

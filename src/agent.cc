@@ -361,9 +361,9 @@ void agent::expand(unsigned depth)
 }
 
 
-void agent::estimate_cases(unsigned depth)
-{
-    for (my_iterator_for_estimating_variable_instances m(*this, depth); !m.get_finished(); ++m)
+void agent::estimate_cases()
+{    
+    for (my_iterator_for_estimating_variable_instances m(*this, max_amount_of_unusual_cases); !m.get_finished(); ++m)
     {
         m.report(std::cout);
     }    
@@ -772,13 +772,16 @@ agent::my_output_multifile::my_output_multifile(unsigned amount_of_files): rng{d
 }
 
 
-void agent::generate_cases(unsigned depth, unsigned new_amount_of_files)
-{
-    std::cout << "generating cases " << depth << " in " << new_amount_of_files << " files\n";
+void agent::generate_cases()
+{    
+    // TODO - the amount of files should be taken from the databank!
+        
+    my_multifile = std::make_shared<my_output_multifile>(144);    
     
-    my_multifile = std::make_shared<my_output_multifile>(new_amount_of_files);    
     
-    for (my_iterator_for_variable_instances m(*this, depth); !m.get_finished(); ++m)
+    // TODO the depth should be taken from the databank
+    
+    for (my_iterator_for_variable_instances m(*this, 1); !m.get_finished(); ++m)
     {
         if (m.get_is_valid())
         {

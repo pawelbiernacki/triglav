@@ -887,31 +887,8 @@ int cpp_parser::parse_generate_cases()
         PARSING_ERROR(i, "(");
         return -1;
     }
-    i = lex();
-    if (i != T_INT_LITERAL)
-    {
-        PARSING_ERROR(i, "<integer>");
-        return -1;
-    }
     
-    int max_amount_of_unusual_cases = yylval.value_int;
-
-
-    i = lex();
-    if (i != ',')
-    {
-        PARSING_ERROR(i, ",");
-        return -1;
-    }    
-
-    i = lex();
-    if (i != T_INT_LITERAL)
-    {
-        PARSING_ERROR(i, "<integer>");
-        return -1;
-    }
-    
-    my_agent.add_command(std::make_shared<command_generate_cases>(max_amount_of_unusual_cases, yylval.value_int));
+    my_agent.add_command(std::make_shared<command_generate_cases>());
     
     i = lex();
     if (i != ')')
@@ -998,21 +975,8 @@ int cpp_parser::parse_save_databank()
     
     std::string databank_location = std::string(yylval.value_string);
     free(yylval.value_string);
-
-    i = lex();
-    if (i != ',')
-    {
-        PARSING_ERROR(i, ",");
-        return -1;
-    }
-    i = lex();
-    if (i != T_INT_LITERAL)
-    {
-        PARSING_ERROR(i, "<int>");
-        return -1;
-    }
     
-    my_agent.add_command(std::make_shared<command_save_databank>(databank_location, yylval.value_int));    
+    my_agent.add_command(std::make_shared<command_save_databank>(databank_location));    
     
     i = lex();
     if (i != ')')
@@ -1079,14 +1043,7 @@ int cpp_parser::parse_estimate_cases()
         PARSING_ERROR(i, "(");
         return -1;
     }
-    i = lex();
-    if (i != T_INT_LITERAL)
-    {
-        PARSING_ERROR(i, "<integer>");
-        return -1;
-    }
-
-    my_agent.add_command(std::make_shared<command_estimate_cases>(yylval.value_int));
+    my_agent.add_command(std::make_shared<command_estimate_cases>());
     
     i = lex();
     if (i != ')')

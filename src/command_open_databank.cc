@@ -181,6 +181,51 @@ void databank_xml_parser::parse_data(my_xml_document_databank::iterator & data)
             if (x == "case_files")
             {
                 //std::cout << "parsing case_files\n";
+                
+                for (my_xml_document_databank::attribute_iterator a{k}; a; ++a)
+                {                            
+                    if (std::string((const char *)(*a)->name) == "amount")
+                    {
+                        my_string value{k, a};
+                        std::stringstream s(*value);
+                        unsigned amount;
+                        s >> amount;
+                        my_agent.set_amount_of_case_files(amount);
+                    }
+                    else 
+                    if (std::string((const char *)(*a)->name) == "prefix")
+                    {
+                        my_string value{k, a};
+                        my_agent.set_case_files_prefix(*value);
+                    }
+                    else
+                    if (std::string((const char *)(*a)->name) == "extension")
+                    {
+                        my_string value{k, a};
+                        my_agent.set_case_files_extension(*value);
+                    }
+                    else
+                    if (std::string((const char *)(*a)->name) == "path")
+                    {
+                        my_string value{k, a};
+                        my_agent.set_case_files_path(*value);
+                    }                        
+                }                
+            }
+            else
+            if (x == "generator")
+            {
+                for (my_xml_document_databank::attribute_iterator a{k}; a; ++a)
+                {
+                    if (std::string((const char *)(*a)->name) == "max_amount_of_unusual_values")
+                    {
+                        my_string value{k, a};
+                        std::stringstream s(*value);
+                        unsigned amount;
+                        s >> amount;
+                        my_agent.set_max_amount_of_unusual_cases(amount);
+                    }
+                }
             }
             else
             if (x == "validation_range")
@@ -215,7 +260,9 @@ void databank_xml_parser::parse_data(my_xml_document_databank::iterator & data)
                     if (std::string((const char *)(*a)->name) == "amount_of_processors")
                     {
                         std::stringstream s{*value};
-                        s >> my_agent.amount_of_processors;
+                        unsigned amount_of_processors;
+                        s >> amount_of_processors;
+                        my_agent.set_amount_of_processors(amount_of_processors);
                         
                         if (s.fail())
                         {
@@ -278,7 +325,7 @@ using namespace triglav;
 void command_open_databank::execute(agent & a) const
 {
 #ifdef TRIGLAV_XML_ON    
-    std::cout << "open_databank " << databank_location << "\n";
+    //std::cout << "open_databank " << databank_location << "\n";
     my_xml_document_databank r(databank_location);
     databank_xml_parser d{a, r};
     

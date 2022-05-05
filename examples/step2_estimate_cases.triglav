@@ -34,8 +34,6 @@ hidden variable where_is_(X:person):place,
                 
 expand(2);
 
-#
-# The argument is a small integer, preferably 1, denoting the amount of
-# input/hidden variables that are allowed unusual values.
-#
-estimate_cases(1); 
+
+open_databank("readme.xml");
+estimate_cases(); 

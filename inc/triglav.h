@@ -1481,22 +1481,16 @@ public:
 
 class command_estimate_cases: public command
 {
-private:
-    const unsigned max_amount_of_unusual_cases;
 public:
-    command_estimate_cases(unsigned m): max_amount_of_unusual_cases{m} {}
+    command_estimate_cases() {}
     virtual void execute(agent & a) const override;
 };
 
 class command_generate_cases: public command
 {
-private:
-    const unsigned max_amount_of_unusual_cases;
-    
-    const unsigned amount_of_output_files;
-        
+private:        
 public:
-    command_generate_cases(unsigned m, unsigned a): max_amount_of_unusual_cases{m}, amount_of_output_files{a} {}
+    command_generate_cases() {}
     virtual void execute(agent & a) const override;
 };
 
@@ -1509,11 +1503,9 @@ public:
 class command_save_databank: public command
 {
 private:
-    const std::string databank_location;
-    
-    const unsigned amount_of_case_files;
+    const std::string databank_location;    
 public:
-    command_save_databank(const std::string & dl, unsigned a): databank_location{dl}, amount_of_case_files{a} {}
+    command_save_databank(const std::string & dl): databank_location{dl} {}
     virtual void execute(agent & a) const override;
 };
 
@@ -2024,7 +2016,10 @@ private:
 
     bool debug;
     unsigned amount_of_actions;
-    unsigned depth;
+    unsigned depth;        
+    unsigned max_amount_of_unusual_cases;
+    unsigned amount_of_processors, amount_of_case_files;
+    std::string case_files_prefix, case_files_extension, case_files_path;
 
     void internal_expand_for_types(unsigned i);
     void internal_expand_for_values();
@@ -2060,10 +2055,52 @@ protected:
     void validate_cases_from_file(const std::string & filename);
     
 public:
-    unsigned amount_of_processors;
+    
+    
         
-    agent(): debug{false}, amount_of_actions{0}, depth{0}, amount_of_processors{1} {}
+    agent(): 
+        debug{false}, 
+        amount_of_actions{0}, 
+        depth{0}, 
+        amount_of_processors{1}, 
+        max_amount_of_unusual_cases{1}, 
+        amount_of_case_files{0},
+        case_files_prefix{""},
+        case_files_extension{".txt"},
+        case_files_path{"."}
+        {}
 
+    
+    void set_amount_of_case_files(unsigned a)
+    {
+        amount_of_case_files = a;
+    }
+    
+    void set_case_files_prefix(const std::string & p)
+    {
+        case_files_prefix = p;
+    }
+    
+    void set_case_files_extension(const std::string & e)
+    {
+        case_files_extension = e;
+    }
+    
+    void set_case_files_path(const std::string & p)
+    {
+        case_files_path = p;
+    }
+    
+    void set_max_amount_of_unusual_cases(unsigned m)
+    {
+        max_amount_of_unusual_cases = m;
+    }
+    
+    void set_amount_of_processors(unsigned a)
+    {
+        amount_of_processors = a;
+    }
+    
     bool get_debug() const {
         return debug;
     }
@@ -2097,11 +2134,11 @@ public:
 
     void loop(unsigned depth);
     
-    void generate_cases(unsigned depth, unsigned new_amount_of_files);
+    void generate_cases();
     
     void validate_cases();
 
-    void estimate_cases(unsigned depth);
+    void estimate_cases();
     
     void clear_validation_items();
     

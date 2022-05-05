@@ -40,4 +40,4 @@ hidden variable where_is_(X:person):place,
 expand(2);
 
 load_databank("readme3.xml");
-generate_cases(1, 144);
+generate_cases();

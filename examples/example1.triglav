@@ -34,3 +34,4 @@ hidden variable where_is_(X:person):place,
 expand(2);
 
 
+report();
