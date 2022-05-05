@@ -1,5 +1,12 @@
 /**
 \page downloading_triglav_tarball Downloading triglav tarball
 
-Triglav has not been published yet. I am working on it.
+
+\htmlonly
+<p>
+You may clone the triglav git repository from <a href="https://github.com/pawelbiernacki/triglav">https://github.com/pawelbiernacki/triglav</a>. 
+</p>
+\endhtmlonly
+
+
 */
