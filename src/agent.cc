@@ -366,6 +366,7 @@ void agent::estimate_cases()
     for (my_iterator_for_estimating_variable_instances m(*this, max_amount_of_unusual_cases); !m.get_finished(); ++m)
     {
         m.report(std::cout);
+        std::cout << "\n";
     }    
 }
 
@@ -732,11 +733,11 @@ void agent::execute()
 }
 
 
-agent::my_output_multifile::output_file::output_file(unsigned n): number{n} 
+agent::my_output_multifile::output_file::output_file(const std::string & path, const std::string & prefix, unsigned n, const std::string & extension): number{n} 
 {
     std::stringstream filename_stream;
     
-    filename_stream << "cases_" << number << ".txt";
+    filename_stream << path << "/" << prefix << number << "." << extension;
     
     output_file_stream.open(filename_stream.str(), std::ofstream::out);
     
@@ -759,7 +760,8 @@ std::ofstream & agent::my_output_multifile::get_random_output_file_stream()
 }
 
 
-agent::my_output_multifile::my_output_multifile(unsigned amount_of_files): rng{dev()}, dist(1, amount_of_files)
+agent::my_output_multifile::my_output_multifile(const std::string & path, const std::string & prefix, unsigned amount_of_files, const std::string & extension): 
+    rng{dev()}, dist(1, amount_of_files)
 {
     if (amount_of_files == 0)
     {
@@ -767,28 +769,57 @@ agent::my_output_multifile::my_output_multifile(unsigned amount_of_files): rng{d
     }
     for (unsigned i{0}; i<amount_of_files; i++)
     {
-        vector_of_output_files.push_back(std::make_shared<output_file>(i));
+        vector_of_output_files.push_back(std::make_shared<output_file>(path, prefix, i, extension));
     }
 }
 
 
+agent::my_single_range_iterator_for_variable_instances::my_single_range_iterator_for_variable_instances(const my_iterator_for_estimating_variable_instances & i, const std::string & range):
+    my_iterator_for_variable_instances{i.get_agent(), i.get_depth()},
+    my_range{range}
+{
+    
+}
+
+void agent::my_single_range_iterator_for_variable_instances::report(std::ostream & s) const
+{
+    my_iterator_for_variable_instances::report(s);    
+}
+
 void agent::generate_cases()
 {    
-    // TODO - the amount of files should be taken from the databank!
-        
-    my_multifile = std::make_shared<my_output_multifile>(144);    
-    
-    
-    // TODO the depth should be taken from the databank
-    
-    for (my_iterator_for_variable_instances m(*this, 1); !m.get_finished(); ++m)
+    /*
+    std::cout << "generating cases for:\n";
+    for (auto & i: vector_of_validation_items)
     {
-        if (m.get_is_valid())
-        {
-            m.report(my_multifile->get_random_output_file_stream());
-            m.report(std::cout);
-        }
+        std::cout << i << "\n";
     }
+    */
+    
+    my_multifile = std::make_shared<my_output_multifile>(case_files_path, case_files_prefix, amount_of_case_files, case_files_extension);    
+
+    
+    for (my_iterator_for_estimating_variable_instances m(*this, max_amount_of_unusual_cases); !m.get_finished(); ++m)
+    {
+        std::stringstream s;
+        m.report(s);
+        
+        if (std::find(vector_of_validation_items.begin(), vector_of_validation_items.end(), s.str())!=vector_of_validation_items.end())
+        {
+            m.report(std::cout);
+            std::cout << "\n";
+                        
+            for (my_single_range_iterator_for_variable_instances n(m, s.str()); !n.get_finished(); ++n)
+            {
+                if (n.get_is_valid())
+                {
+                    //n.report(my_multifile->get_random_output_file_stream());
+                    n.report(std::cout);
+                    std::cout << "\n";
+                }
+            }                        
+        }
+    }    
     
     my_multifile = nullptr;
 }
@@ -1025,14 +1056,10 @@ bool agent::my_iterator_for_variable_instances::get_is_valid() const
 
 
 void agent::my_iterator_for_estimating_variable_instances::report(std::ostream & s) const
-{
-    bool first = true;
-        
+{        
     s << "[" << amount_of_variable_instances << "]";
     
     my_vector_of_indices.report(s);
-
-    s << "\n";
 }
 
 

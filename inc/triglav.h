@@ -1842,12 +1842,19 @@ public:
     public:
         
         my_iterator_for_estimating_variable_instances(agent & a, unsigned d);
-        
-        bool get_finished() const;
+                
+        bool get_finished() const;  // this function is not virtual!
         
         my_iterator_for_estimating_variable_instances& operator++();        
         
+        void iterate() { operator++(); }
+        
+        
         void report(std::ostream & s) const;        
+        
+        agent & get_agent() const { return my_agent; }
+        
+        unsigned get_depth() const { return depth; }
     };
     
     
@@ -1857,7 +1864,7 @@ public:
      * It is used to generate all the cases (i.e. tuples (visible_state, state)).
      */
     class my_iterator_for_variable_instances: public my_iterator_for_estimating_variable_instances
-    {
+    {        
     private:        
         
         
@@ -1944,11 +1951,26 @@ public:
         my_iterator_for_variable_instances(agent & a, unsigned d);
         
         bool get_is_valid() const;
-        bool get_finished() const;
+        virtual bool get_finished() const;
         
         my_iterator_for_variable_instances& operator++();        
         
         void report(std::ostream & s) const;
+    };
+    
+    /**
+     * This iterator works for a single validation range.
+     */
+    class my_single_range_iterator_for_variable_instances: public my_iterator_for_variable_instances
+    {
+    private:
+        const std::string my_range;
+    public:
+        my_single_range_iterator_for_variable_instances(const my_iterator_for_estimating_variable_instances & i, const std::string & range);
+
+        void report(std::ostream & s) const;
+        
+        virtual bool get_finished() const override { return true; }        
     };
     
     /**
@@ -1965,7 +1987,7 @@ public:
             std::ofstream output_file_stream;
             unsigned number;
         public:
-            output_file(unsigned n);
+            output_file(const std::string & path, const std::string & prefix, unsigned n, const std::string & extension);
             ~output_file();
             
             std::ofstream & get_stream() { return output_file_stream; }
@@ -1978,7 +2000,7 @@ public:
         
         
     public:                
-        my_output_multifile(unsigned amount_of_files);
+        my_output_multifile(const std::string & path, const std::string & prefix, unsigned amount_of_files, const std::string & extension);
         
         std::ofstream & get_random_output_file_stream();        
     };
