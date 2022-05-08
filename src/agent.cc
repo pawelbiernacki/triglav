@@ -786,6 +786,12 @@ void agent::my_single_range_iterator_for_variable_instances::report(std::ostream
     my_iterator_for_variable_instances::report(s);    
 }
 
+bool agent::my_single_range_iterator_for_variable_instances::get_is_valid() const
+{
+    return get_is_matching(my_range) && this->my_iterator_for_variable_instances::get_is_valid();
+}
+
+
 void agent::generate_cases()
 {    
     /*
@@ -806,16 +812,20 @@ void agent::generate_cases()
         
         if (std::find(vector_of_validation_items.begin(), vector_of_validation_items.end(), s.str())!=vector_of_validation_items.end())
         {
+            std::cout << "consider validation range " << s.str() << " ";
             m.report(std::cout);
             std::cout << "\n";
                         
             for (my_single_range_iterator_for_variable_instances n(m, s.str()); !n.get_finished(); ++n)
-            {
+            {                
                 if (n.get_is_valid())
                 {
-                    //n.report(my_multifile->get_random_output_file_stream());
+                    n.report(my_multifile->get_random_output_file_stream());
                     n.report(std::cout);
-                    std::cout << "\n";
+                }
+                else
+                {
+                    //std::cout << "not valid\n";
                 }
             }                        
         }
@@ -963,6 +973,14 @@ agent::my_iterator_for_estimating_variable_instances::my_iterator_for_estimating
     }
     
     my_vector_of_indices.set_amount_of_variable_instances(vector_of_variable_instances_names.size());
+}
+
+
+bool agent::my_iterator_for_estimating_variable_instances::get_is_matching(const std::string & vr) const
+{
+    std::stringstream s;
+    report(s);    
+    return s.str()==vr;
 }
 
 
@@ -1114,6 +1132,20 @@ agent::my_iterator_for_estimating_variable_instances& agent::my_iterator_for_est
         }
     }
     
+    return *this;
+}
+
+agent::my_single_range_iterator_for_variable_instances& agent::my_single_range_iterator_for_variable_instances::operator++()
+{
+    if (get_is_matching(my_range))
+    {
+        this->my_iterator_for_variable_instances::operator++();        
+    }
+    else
+    {
+        this->my_iterator_for_estimating_variable_instances::operator++();
+        reinitialize();
+    }
     return *this;
 }
 

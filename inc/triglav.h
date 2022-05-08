@@ -1855,6 +1855,8 @@ public:
         agent & get_agent() const { return my_agent; }
         
         unsigned get_depth() const { return depth; }
+        
+        bool get_is_matching(const std::string & vr) const;
     };
     
     
@@ -1945,13 +1947,14 @@ public:
         
         std::map<std::string, list_of_possible_values_and_some_other_stuff> map_variable_instances_to_list_of_possible_values;
                         
+    protected:
         void reinitialize();
         
     public:
         my_iterator_for_variable_instances(agent & a, unsigned d);
         
         bool get_is_valid() const;
-        virtual bool get_finished() const;
+        bool get_finished() const;
         
         my_iterator_for_variable_instances& operator++();        
         
@@ -1970,7 +1973,10 @@ public:
 
         void report(std::ostream & s) const;
         
-        virtual bool get_finished() const override { return true; }        
+        bool get_is_valid() const;
+        
+        my_single_range_iterator_for_variable_instances& operator++();        
+
     };
     
     /**
