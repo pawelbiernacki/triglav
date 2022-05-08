@@ -85,6 +85,7 @@ IDENTIFIER		{LETTER}({LETTER_OR_DIGIT})*
 "open_databank"         { return T_OPEN_DATABANK; }
 "impossible"            { return T_IMPOSSIBLE; }
 "estimate_cases"        { return T_ESTIMATE_CASES; }
+"consider"              { return T_CONSIDER; }
 
 {IDENTIFIER}  			{ yylval_param->value_string = strdup(yytext); return T_IDENTIFIER; }
 

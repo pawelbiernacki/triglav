@@ -42,6 +42,7 @@ const cpp_parser::token_and_name cpp_parser::array_of_tokens_and_names[] = {
     { T_OPEN_DATABANK, "T_OPEN_DATABANK" },
     { T_IMPOSSIBLE, "T_IMPOSSIBLE" },
     { T_ESTIMATE_CASES, "T_ESTIMATE_CASES" },
+    { T_CONSIDER, "T_CONSIDER" },
     { T_IDENTIFIER, "T_IDENTIFIER" },
     { T_FLOAT_LITERAL, "T_FLOAT_LITERAL" },
     { T_INT_LITERAL, "T_INT_LITERAL" },
@@ -1103,6 +1104,35 @@ int cpp_parser::parse_expand()
     return 0;
 }
 
+int cpp_parser::parse_consider()
+{
+    int i;
+    i = lex();
+    if (i != T_CONSIDER)
+    {
+        PARSING_ERROR(i, "consider");
+        return -1;
+    }
+    i = lex();
+    if (i != T_IDENTIFIER)
+    {
+        PARSING_ERROR(i, "<identifier>");
+        return -1;
+    }
+
+    my_agent.add_command(std::make_shared<command_consider>(std::string(yylval.value_string)));
+    free(yylval.value_string);
+    
+    i = lex();
+    if (i != ';')
+    {
+        PARSING_ERROR(i, ";");
+        return -1;
+    }
+    
+    return 0;
+}
+
 
 int cpp_parser::parse_report()
 {
@@ -1209,6 +1239,12 @@ int cpp_parser::parse()
             if (parse_report())
                 return -1;
             break;
+            
+        case T_CONSIDER:
+            unlex(i);
+            if (parse_consider())
+                return -1;
+            break;
 
         case T_STRING_LITERAL:
             next_rule_comment = std::string(yylval.value_string);
@@ -1227,6 +1263,8 @@ int cpp_parser::parse()
         }
     }
     while (true);
+    
+    my_agent.calculate_the_consider_ranks();
 
     return 0;
 }

@@ -11,7 +11,7 @@ libtriglav_la_SOURCES = scanner.l agent.cc type.cc generic_name_list.cc generic_
 		logical_expression_equality.cc cpp_parser.cc command_expand.cc command_loop.cc command_report.cc output.cc logical_expression_and.cc \
 		statement_add_payoff.cc statement_there_is_a_chance.cc input_variable.cc output_variable.cc hidden_variable.cc input_variable_instance.cc \
 		output_variable_instance.cc hidden_variable_instance.cc set_of_possible_values.cc command_generate_cases.cc command_validate_cases.cc \
-		cases_parser.cc command_save_databank.cc command_open_databank.cc statement_impossible.cc command_estimate_cases.cc
+		cases_parser.cc command_save_databank.cc command_open_databank.cc statement_impossible.cc command_estimate_cases.cc command_consider.cc
 
 triglav_SOURCES = triglav.cc 
 

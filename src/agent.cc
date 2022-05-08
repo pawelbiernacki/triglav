@@ -8,6 +8,42 @@
 
 using namespace triglav;
 
+agent::agent(): 
+        debug{false}, 
+        amount_of_actions{0}, 
+        depth{0}, 
+        amount_of_processors{1}, 
+        max_amount_of_unusual_cases{1}, 
+        amount_of_case_files{0},
+        case_files_prefix{""},
+        case_files_extension{".txt"},
+        case_files_path{"."}
+        {}
+
+
+void agent::calculate_the_consider_ranks()
+{
+    rank = 0;
+    for (auto & i: list_of_commands)
+    {
+        if (i->get_is_consider_command())
+        {
+            i->set_rank(rank++);
+        }
+    }
+}
+
+int agent::get_variable_instance_rank(const std::string & n) const
+{
+    auto i=std::find_if(map_variable_instances_to_consider_rank.begin(), map_variable_instances_to_consider_rank.end(),
+                                                            [&n](auto & x){ return x.first == n; });
+    if (i != map_variable_instances_to_consider_rank.end())
+    {
+        return i->second;
+    }
+    return rank;
+}
+
 
 void agent::clear_validation_items()
 {
@@ -19,6 +55,15 @@ void agent::add_validation_item(const std::string & v)
     vector_of_validation_items.push_back(v);
 }
 
+
+void agent::add_consider_variable_instance(const std::string & n, int rank)
+{
+    auto [it, success]=map_variable_instances_to_consider_rank.insert(std::pair(n, rank));
+    if (!success)
+    {
+        throw std::runtime_error("unable to consider the variable instance twice");
+    }
+}
 
 
 void agent::add_variable_instance(std::shared_ptr<variable_instance> && v)
@@ -812,9 +857,11 @@ void agent::generate_cases()
         
         if (std::find(vector_of_validation_items.begin(), vector_of_validation_items.end(), s.str())!=vector_of_validation_items.end())
         {
+            /*
             std::cout << "consider validation range " << s.str() << " ";
             m.report(std::cout);
             std::cout << "\n";
+            */
                         
             for (my_single_range_iterator_for_variable_instances n(m, s.str()); !n.get_finished(); ++n)
             {                
@@ -972,6 +1019,8 @@ agent::my_iterator_for_estimating_variable_instances::my_iterator_for_estimating
         }
     }
     
+    std::sort(vector_of_variable_instances_names.begin(), vector_of_variable_instances_names.end(), [&a](auto x, auto y){ return a.get_variable_instance_rank(x)<a.get_variable_instance_rank(y); });
+        
     my_vector_of_indices.set_amount_of_variable_instances(vector_of_variable_instances_names.size());
 }
 
@@ -1091,8 +1140,9 @@ void agent::my_iterator_for_variable_instances::report(std::ostream & s) const
     
     s << "{";
 
-    for (auto i(map_variable_instances_to_values.begin()); i!=map_variable_instances_to_values.end(); i++)
+    for (auto & x: vector_of_variable_instances_names)
     {
+        auto i = map_variable_instances_to_values.find(x);
         unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
         bool has_usual_values = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_usual_values();
         bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);

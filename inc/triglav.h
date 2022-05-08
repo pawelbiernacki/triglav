@@ -1452,6 +1452,23 @@ class command
 public:
     virtual ~command() {}
     virtual void execute(agent & a) const = 0;
+    
+    virtual bool get_is_consider_command() const { return false; }
+    virtual void set_rank(int r) {}
+};
+
+class command_consider: public command
+{
+private:
+    int my_rank;
+    const std::string variable_name;
+public:
+    command_consider(const std::string & vn): variable_name{vn}, my_rank{0} {}
+    virtual void execute(agent & a) const override;
+    
+    virtual bool get_is_consider_command() const override { return true; }
+    
+    virtual void set_rank(int r) override { my_rank = r; }
 };
 
 class command_expand: public command
@@ -2011,10 +2028,26 @@ public:
         std::ofstream & get_random_output_file_stream();        
     };
     
+private:
+    
     /**
      * This multifile is used when we generate cases.
      */
-    std::shared_ptr<my_output_multifile> my_multifile;  
+    std::shared_ptr<my_output_multifile> my_multifile;
+    
+    /**
+     * The consider rank determines the order in which we consider the variables when generating cases.
+     */
+    std::map<std::string, int> map_variable_instances_to_consider_rank;
+    
+    /**
+     * This number is increased for each consider command, then the variable instances are sorted
+     * when generating cases according to this rank growing. The max value is assigned to all 
+     * variable instances that are not "considered" by the user explicitly.
+     */
+    int rank;
+    
+    int get_variable_instance_rank(const std::string & n) const;
 
 private:
 
@@ -2037,7 +2070,7 @@ private:
     std::shared_ptr<belief> current_belief;
 
     std::map<std::string,std::shared_ptr<variable_instance>> map_name_to_variable_instance;
-    std::map<std::string,std::shared_ptr<value_instance>> map_name_to_value_instance;
+    std::map<std::string,std::shared_ptr<value_instance>> map_name_to_value_instance;        
 
     
     std::vector<std::string> vector_of_validation_items;
@@ -2084,19 +2117,16 @@ protected:
     
 public:
     
-    
+    agent();
         
-    agent(): 
-        debug{false}, 
-        amount_of_actions{0}, 
-        depth{0}, 
-        amount_of_processors{1}, 
-        max_amount_of_unusual_cases{1}, 
-        amount_of_case_files{0},
-        case_files_prefix{""},
-        case_files_extension{".txt"},
-        case_files_path{"."}
-        {}
+    void add_consider_variable_instance(const std::string & n, int rank);
+    
+    /**
+     * This method is called by the cpp_parser, it calculates the ranks of the "consider commands", i.e. the first
+     * one gets 0, the next one 1, 2, and so on. If a variable instance is not "considered" then it gets maximum rank.
+     * Later, when generating cases, we use these ranks to sort the variable instances.
+     */
+    void calculate_the_consider_ranks();
 
     
     void set_amount_of_case_files(unsigned a)
@@ -2276,6 +2306,7 @@ private:
     int parse_generate_cases();
     int parse_validate_cases();
     int parse_estimate_cases();
+    int parse_consider();
     int parse_save_databank();
     int parse_open_databank();
 public:
