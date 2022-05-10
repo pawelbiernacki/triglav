@@ -114,6 +114,14 @@ bool logical_expression_equality::get_can_be_evaluated(agent & a, belief & b, my
     return l && r;
 }
 
+bool logical_expression_equality::get_can_be_evaluated_given_assumption(agent & a, my_iterator & source)
+{
+    bool l = left->get_can_be_evaluated_given_assumption(a, source);
+    bool r = right->get_can_be_evaluated_given_assumption(a, source);
+    return l && r;    
+}
+
+
 
 void logical_expression_equality::explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o)
 {

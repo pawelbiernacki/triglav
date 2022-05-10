@@ -7,6 +7,14 @@
 #include <unistd.h>
 
 using namespace triglav;
+//#define TRIGLAV_DEBUG
+
+#ifdef TRIGLAV_DEBUG
+#define DEBUG(X) std::cout << __FILE__ << " " << __LINE__ << ":" << X << "\n"
+#else
+#define DEBUG(X)
+#endif
+
 
 agent::agent(): 
         debug{false}, 
@@ -823,6 +831,81 @@ agent::my_single_range_iterator_for_variable_instances::my_single_range_iterator
     my_iterator_for_variable_instances{i.get_agent(), i.get_depth()},
     my_range{range}
 {
+    DEBUG("my_single_range_iterator_for_variable_instances::my_single_range_iterator_for_variable_instances");
+    
+    for (unsigned r=amount_of_checked_variable_instances; r<vector_of_variable_instances_names.size();)            
+    {
+        DEBUG("checking for " << r << " (maximum is " << (vector_of_variable_instances_names.size()-1) << ")");
+        auto & x=vector_of_variable_instances_names[r];
+        auto i=map_variable_instances_to_values.find(x);
+                                    
+        unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
+        bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
+        bool has_exactly_one_usual_value = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_exactly_one_usual_value();            
+        auto my_end = map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values);
+            
+        if (!allows_unusual_values && has_exactly_one_usual_value)
+        {
+            (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(false);
+            
+            DEBUG("for " << x << " it must be " << *(*i).second);
+            
+            r++;
+            amount_of_checked_variable_instances=r;
+            continue;
+        }
+        else
+        if ((*i).second != my_end)
+        {        
+            DEBUG("for " << x << " it isn't finished yet, assume " << (r+1) << " are known");
+                my_agent.assume_only_the_first_n_variable_instance_known(r+1, vector_of_variable_instances_names);
+                if (my_agent.get_the_iterator_is_partially_valid(r+1, *this))
+                {
+                    DEBUG("the iterator is partially valid for " << (r+1));
+                    if (r+1==vector_of_variable_instances_names.size())
+                    {
+                        amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
+                        DEBUG("assign amount_of_checked_variable_instances to " << vector_of_variable_instances_names.size());                                                
+                        return;
+                    }
+                    else
+                    {
+                        DEBUG("we increment r");
+                        r++;
+                        continue;
+                    }
+                }
+                else
+                {
+                    DEBUG("the iterator is not partially valid for " << (r+1));
+                    (*i).second++;
+                    continue;
+                }
+        }
+        else
+        {
+            DEBUG("for " << x << " it is finished");
+            if (r == 0)
+            {
+                amount_of_checked_variable_instances=0;
+                ++my_vector_of_indices;
+                reinitialize();
+                if (my_vector_of_indices.get_finished())
+                {                    
+                    DEBUG("assign amount_of_checked_variable_instances to vector_of_variable_instances_names.size()");
+                    amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
+                    
+                    processed = true;
+                    return;
+                }
+            }
+            else
+            {
+                r--;
+                continue;
+            }
+        }
+    }
     
 }
 
@@ -831,10 +914,6 @@ void agent::my_single_range_iterator_for_variable_instances::report(std::ostream
     my_iterator_for_variable_instances::report(s);    
 }
 
-bool agent::my_single_range_iterator_for_variable_instances::get_is_valid() const
-{
-    return get_is_matching(my_range) && this->my_iterator_for_variable_instances::get_is_valid();
-}
 
 
 void agent::generate_cases()
@@ -862,11 +941,27 @@ void agent::generate_cases()
             m.report(std::cout);
             std::cout << "\n";
             */
-                        
+
+            std::string former, former2;
             for (my_single_range_iterator_for_variable_instances n(m, s.str()); !n.get_finished(); ++n)
             {                
                 if (n.get_is_valid())
                 {
+                    std::stringstream s;
+                    n.report(s);
+                    if (s.str() == former)
+                    {
+                        n.report(std::cout);
+                        throw std::runtime_error("internal error - the next value equals the former");
+                    }
+                    if (s.str() == former2)
+                    {
+                        n.report(std::cout);
+                        throw std::runtime_error("internal error - the next value equals the former2");
+                    }
+                    former2 = former;
+                    former = s.str();
+                    
                     n.report(my_multifile->get_random_output_file_stream());
                     n.report(std::cout);
                 }
@@ -926,265 +1021,6 @@ void agent::validate_cases_from_file(const std::string & filename)
 
 
 
-
-agent::my_iterator_for_estimating_variable_instances::vector_of_indices_and_some_other_stuff::vector_of_indices_and_some_other_stuff(unsigned d): 
-    amount_of_variable_instances{0}, depth{d}, finished{false}
-{
-    if (depth > 0)
-    {
-        vector_of_indices_can_be_unusual.resize(depth);
-        for (int i = 0; i < depth; i++)
-        {
-            vector_of_indices_can_be_unusual[i] = 0;
-        }
-    }
-}
-
-
-void agent::my_iterator_for_estimating_variable_instances::vector_of_indices_and_some_other_stuff::report(std::ostream & s) const
-{
-    bool first = true;
-    
-    s << "[";
-    
-    for (int i=0; i<depth; i++)
-    {
-        if (!first)
-            s << ",";
-        s << vector_of_indices_can_be_unusual[i];
-        first = false;
-    }
-    
-    s << "]";
-}
-
-agent::my_iterator_for_estimating_variable_instances::vector_of_indices_and_some_other_stuff&  agent::my_iterator_for_estimating_variable_instances::vector_of_indices_and_some_other_stuff::operator++()
-{
-    for (int i=0; i<vector_of_indices_can_be_unusual.size(); i++)
-    {
-        if (vector_of_indices_can_be_unusual[i] < amount_of_variable_instances)
-        {
-            vector_of_indices_can_be_unusual[i]++;            
-            break;
-        }
-        else
-        {
-            vector_of_indices_can_be_unusual[i] = 0;
-            if (i<vector_of_indices_can_be_unusual.size()-1)
-            {
-                continue;
-            }
-            else
-            {
-                finished = true;
-            }
-        }
-    }
-    return *this;
-}
-
-bool agent::my_iterator_for_estimating_variable_instances::vector_of_indices_and_some_other_stuff::get_finished() const
-{
-    return finished;
-}
-
-
-bool agent::my_iterator_for_estimating_variable_instances::get_finished() const
-{
-    return my_vector_of_indices.get_finished();
-}
-
-
-bool agent::my_iterator_for_estimating_variable_instances::vector_of_indices_and_some_other_stuff::get_allows_unusual_values_at(unsigned index) const
-{
-    for (int i=0; i<vector_of_indices_can_be_unusual.size(); i++)
-    {
-        if (vector_of_indices_can_be_unusual[i] == index)
-            return true;
-    }
-    return false;
-}
-
-
-agent::my_iterator_for_estimating_variable_instances::my_iterator_for_estimating_variable_instances(agent & a, unsigned d):
-    my_agent{a}, depth{d}, processed{false}, amount_of_variable_instances{0}, my_vector_of_indices{d}
-{
-    vector_of_variable_instances_names.clear();
-    for (auto i(my_agent.list_of_variable_instances.begin()); i!=my_agent.list_of_variable_instances.end(); i++)
-    {
-        if ((*i)->get_mode()==variable_mode::INPUT || (*i)->get_mode()==variable_mode::HIDDEN)
-        {
-            amount_of_variable_instances++;
-            vector_of_variable_instances_names.push_back((*i)->get_name());
-        }
-    }
-    
-    std::sort(vector_of_variable_instances_names.begin(), vector_of_variable_instances_names.end(), [&a](auto x, auto y){ return a.get_variable_instance_rank(x)<a.get_variable_instance_rank(y); });
-        
-    my_vector_of_indices.set_amount_of_variable_instances(vector_of_variable_instances_names.size());
-}
-
-
-bool agent::my_iterator_for_estimating_variable_instances::get_is_matching(const std::string & vr) const
-{
-    std::stringstream s;
-    report(s);    
-    return s.str()==vr;
-}
-
-
-
-agent::my_iterator_for_variable_instances::my_iterator_for_variable_instances(agent & a, unsigned d): 
-    my_iterator_for_estimating_variable_instances{a, d}
-{
-    map_variable_instances_to_list_of_possible_values.clear();
-    
-    for (auto i(my_agent.list_of_variable_instances.begin()); i!=my_agent.list_of_variable_instances.end(); i++)
-    {
-        if ((*i)->get_mode()==variable_mode::INPUT || (*i)->get_mode()==variable_mode::HIDDEN)
-        {
-            auto [it, success] = map_variable_instances_to_list_of_possible_values.insert(std::pair((*i)->get_name(), 
-                list_of_possible_values_and_some_other_stuff((*i)->get_mode(), (*i)->get_has_usual_values(), amount_of_variable_instances)));
-            if (!success)
-            {
-                throw std::runtime_error("failed to insert a variable instance");
-            }
-            
-                                    
-            if ((*i)->get_has_usual_values())
-            {
-                for (auto j((*i)->get_list_of_usual_values().begin()); j!=(*i)->get_list_of_usual_values().end(); j++)
-                {
-                    (*it).second.get_list().push_back(*j);
-                }
-                (*it).second.set_has_exactly_one_usual_value((*it).second.get_list().size()==1);
-                
-                for (auto j((*i)->get_vector_of_value_instances().begin()); j!=(*i)->get_vector_of_value_instances().end(); j++)
-                {
-                    auto a = std::find_if((*i)->get_list_of_usual_values().begin(), (*i)->get_list_of_usual_values().end(), [&j](auto & k){ return k == (*j)->get_name(); });
-                    if (a == (*i)->get_list_of_usual_values().end())
-                    {
-                        (*it).second.add_unusual_value((*j)->get_name());
-                    }
-                }
-            }
-            else
-            {
-                // there is no "usually" clause, all values are usual
-                for (auto j((*i)->get_vector_of_value_instances().begin()); j!=(*i)->get_vector_of_value_instances().end(); j++)
-                {            
-                    (*it).second.get_list().push_back((*j)->get_name());
-                    (*it).second.add_unusual_value((*j)->get_name());
-                }
-                (*it).second.set_has_exactly_one_usual_value((*it).second.get_list().size()==1);    // it should be never true
-            }
-                                                        
-            auto [it2, success2] = map_variable_instances_to_values.insert(std::pair((*i)->get_name(), map_variable_instances_to_list_of_possible_values.at((*i)->get_name()).get_begin(my_vector_of_indices.get_allows_unusual_values_at(amount_of_variable_instances-1))));
-            
-            if (!success2)
-            {
-                throw std::runtime_error("failed to insert a variable instance iterator");
-            }
-        }
-    }            
-}
-
-
-void agent::my_iterator_for_variable_instances::reinitialize()
-{
-    unsigned index = 0;
-    for (auto i(my_agent.list_of_variable_instances.begin()); i!=my_agent.list_of_variable_instances.end(); i++)
-    {
-        if ((*i)->get_mode()==variable_mode::INPUT || (*i)->get_mode()==variable_mode::HIDDEN)
-        {
-            index++;
-            map_variable_instances_to_values.at((*i)->get_name()) = map_variable_instances_to_list_of_possible_values.at((*i)->get_name()).get_begin(my_vector_of_indices.get_allows_unusual_values_at(index-1));
-        }
-    }
-}
-
-
-
-bool agent::my_iterator_for_variable_instances::get_is_valid() const
-{
-    for (auto i(map_variable_instances_to_values.begin()); i!=map_variable_instances_to_values.end(); i++)
-    {
-        unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
-        bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
-        
-        if ((*i).second == map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values))
-        {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-
-void agent::my_iterator_for_estimating_variable_instances::report(std::ostream & s) const
-{        
-    s << "[" << amount_of_variable_instances << "]";
-    
-    my_vector_of_indices.report(s);
-}
-
-
-void agent::my_iterator_for_variable_instances::report(std::ostream & s) const
-{
-    bool first = true;
-        
-    s << "[" << amount_of_variable_instances << "]";
-    
-    my_vector_of_indices.report(s);
-    
-    s << "{";
-
-    for (auto & x: vector_of_variable_instances_names)
-    {
-        auto i = map_variable_instances_to_values.find(x);
-        unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
-        bool has_usual_values = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_usual_values();
-        bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
-        
-        if (allows_unusual_values || !has_usual_values)
-        {
-            if (!first) s << ",";
-            
-            if ((*i).second != map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values))
-            {
-                s << (*i).first << "=>" << *(*i).second;
-            }
-            else
-            {
-                s << (*i).first << "=>" << "END";
-            }
-            first = false;
-        }
-    }
-    s << "}\n";    
-}
-
-
-agent::my_iterator_for_estimating_variable_instances& agent::my_iterator_for_estimating_variable_instances::operator++()
-{
-    if (amount_of_variable_instances == 0)
-    {
-        processed = true;
-    }
-    else
-    {
-        ++my_vector_of_indices;
-                        
-        if (my_vector_of_indices.get_finished())
-        {
-            processed = true;
-        }
-    }
-    
-    return *this;
-}
-
 agent::my_single_range_iterator_for_variable_instances& agent::my_single_range_iterator_for_variable_instances::operator++()
 {
     if (get_is_matching(my_range))
@@ -1199,70 +1035,73 @@ agent::my_single_range_iterator_for_variable_instances& agent::my_single_range_i
     return *this;
 }
 
-agent::my_iterator_for_variable_instances& agent::my_iterator_for_variable_instances::operator++()
+
+void agent::assume_only_the_first_n_variable_instance_known(unsigned n, const std::vector<std::string> & v)
 {
-    if (amount_of_variable_instances == 0)
+    map_name_to_assumed_flag.clear();
+    
+    //DEBUG("assume " << n << " variables are known");
+    for (unsigned i=0; i<n; i++)
     {
-        processed = true;
-    }
-    else
-    {
-        for (auto i(map_variable_instances_to_values.begin()); i!=map_variable_instances_to_values.end(); i++)
+        auto [it, success] = map_name_to_assumed_flag.insert(std::pair(v[i], true));
+        if (!success)
         {
-            unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
-            bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
-            bool has_exactly_one_usual_value = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_exactly_one_usual_value();            
-            auto my_end = map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values);
-            
-            if (!allows_unusual_values && has_exactly_one_usual_value)
-            {
-                (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(false);
-                continue;
-            }
-            else
-            if ((*i).second != my_end)
-            {                
-                //std::cout << "for first " << (*i).first << " second indicates " << *(*i).second << "\n";            
-                
-                (*i).second++;                
-                
-                /*
-                if ((*i).second != my_end)
-                {                                    
-                    std::cout << "for first " << (*i).first << " second incremented to " << *(*i).second << "\n";
-                }
-                else
-                {
-                    std::cout << "for first " << (*i).first << " second incremented to <END>\n";
-                }
-                */
-                return *this;
-            }
-            else
-            {
-                auto i2=i;                                
-                i2++;
-                if (i2 != map_variable_instances_to_values.end())
-                {
-                    (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(allows_unusual_values);
-                    continue;
-                }
-                else
-                {
-                    ++my_vector_of_indices;
-                    reinitialize();
-                        
-                    if (my_vector_of_indices.get_finished())
-                    {
-                        processed = true;
-                        break;
-                    }
-                }
-            }
+            throw std::runtime_error("failed to assume some variable instances known");
         }
+        //DEBUG("assume " << v[i] << " is known");                
     }
-    return *this;
+    map_name_to_assumed_value.clear();
 }
+    
+std::string agent::get_assumed_value(const std::string & n) const
+{
+    return map_name_to_assumed_value.at(n);
+}
+    
+    
+    
+    
+bool agent::get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_variable_instances & i)
+{
+    bool impossible = false;
+    
+    for (auto x: map_name_to_assumed_flag)
+    {
+        auto [it, success]=map_name_to_assumed_value.insert(std::pair(x.first, i.get_value(x.first)));
+        if (!success)
+        {
+            throw std::runtime_error("failed to assume a value");
+        }
+        //DEBUG("got " << (*it).first << " with value " << (*it).second);
+    }
+    
+    for (auto & j: list_of_rules)
+    {
+        if (j->try_to_apply_as_assumption_rule(*this, impossible))
+        {
+            if (impossible)
+                return false;
+        }
+    }    
+    return true;
+}
+
+bool agent::get_is_assumed(const std::string & n) const
+{
+    return map_name_to_assumed_flag.find(n)!=map_name_to_assumed_flag.end();
+}
+
+bool agent::my_single_range_iterator_for_variable_instances::get_is_valid() const
+{
+    if (!get_is_matching(my_range) || !this->my_iterator_for_variable_instances::get_is_valid())
+    {
+        return false;
+    }
+    
+    return true;
+}
+
+
 
 
 agent::my_iterator_for_rules::my_iterator_for_rules(agent & a, rule & r): my_iterator{a}, my_rule{r}
@@ -1371,7 +1210,3 @@ agent::my_iterator_for_types::my_iterator_for_types(agent & a, std::shared_ptr<g
     }
 }
 
-bool agent::my_iterator_for_variable_instances::get_finished() const
-{
-    return processed;
-}

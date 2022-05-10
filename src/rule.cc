@@ -3,6 +3,33 @@
 using namespace triglav;
 
 
+bool rule::try_to_apply_as_assumption_rule(agent & a, bool & impossible_flag)
+{
+    bool result=false;
+    agent::my_iterator_for_rules i{a, *this};
+    condition->update_iterator(i);
+    implication->update_iterator(i);
+    
+    for (; !i.get_finished(); ++i)
+    {
+        if (i.get_is_valid())
+        {
+            if (condition->get_can_be_evaluated_given_assumption(a, i))
+            {
+                if (condition->get_evaluate_given_assumption(a, i))
+                {
+                    implication->execute_given_assumption(a, i, impossible_flag);
+                    result = true;
+                    if (impossible_flag)
+                        return true;
+                }
+            }
+        }
+    }    
+    return result;
+}
+
+
 bool rule::try_to_apply_as_a_dynamic_rule(agent & a, belief & b, belief * b2, input & j, input * j2, output & o)
 {
     bool result = false;

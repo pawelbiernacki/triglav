@@ -44,6 +44,31 @@ bool expression_value::get_can_be_evaluated(agent & a, belief & b, my_iterator &
     return x != a.get_map_name_to_value_instance().end();
 }
 
+
+std::string expression_value::get_evaluate_given_assumption(agent & a, my_iterator & source)
+{
+    std::string actual_value_name = my_value_name->get_actual_name(source);
+
+    //std::cout << "identified value " << actual_value_name << "\n";
+    auto x = a.get_map_name_to_value_instance().find(actual_value_name);
+
+    //auto x = std::find_if(a.get_list_of_value_instances().begin(), a.get_list_of_value_instances().end(), [&actual_value_name](auto & i){ return i->get_name() == actual_value_name; });
+    return (*x).second->get_name();
+}
+
+bool expression_value::get_can_be_evaluated_given_assumption(agent & a, my_iterator & source)
+{
+    std::string actual_value_name = my_value_name->get_actual_name(source);
+
+    //std::cout << "identified value " << actual_value_name << "\n";
+    auto x = a.get_map_name_to_value_instance().find(actual_value_name);
+
+    //auto x = std::find_if(a.get_list_of_value_instances().begin(), a.get_list_of_value_instances().end(), [&actual_value_name](auto & i){ return i->get_name() == actual_value_name; });
+
+    return x != a.get_map_name_to_value_instance().end();
+}
+
+
 void expression_value::explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o)
 {
     report(std::cout);

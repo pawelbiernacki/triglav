@@ -118,6 +118,58 @@ bool expression_variable_terminal_value::get_can_be_evaluated(agent & a, belief 
     return false;
 }
 
+
+std::string expression_variable_terminal_value::get_evaluate_given_assumption(agent & a, my_iterator & source)
+{
+    std::string actual_variable_name = my_variable_name->get_actual_name(source);
+    auto x = a.get_map_name_to_variable_instance().find(actual_variable_name);
+
+    if (x != a.get_map_name_to_variable_instance().end())
+    {
+        switch ((*x).second->get_mode())
+        {
+        case variable_mode::HIDDEN:
+            return a.get_assumed_value(actual_variable_name);
+
+        case variable_mode::INPUT:
+            //std::cout << "it is an input variable " << (*x).second->get_name() << "\n";
+            return a.get_assumed_value(actual_variable_name);
+
+        case variable_mode::OUTPUT:
+            //std::cout << "it is an output variable - up to decision\n";
+            return "";
+        }
+    }
+    return "";
+}
+
+
+bool expression_variable_terminal_value::get_can_be_evaluated_given_assumption(agent & a, my_iterator & source)
+{
+    std::string actual_variable_name = my_variable_name->get_actual_name(source);
+    auto x = a.get_map_name_to_variable_instance().find(actual_variable_name);
+
+    if (x != a.get_map_name_to_variable_instance().end())
+    {
+        switch ((*x).second->get_mode())
+        {
+        case variable_mode::HIDDEN:
+            return a.get_is_assumed(actual_variable_name);
+
+        case variable_mode::INPUT:
+            //std::cout << "it is an input variable " << (*x).second->get_name() << "\n";
+            return a.get_is_assumed(actual_variable_name);
+
+        case variable_mode::OUTPUT:
+            //std::cout << "it is an output variable - up to decision\n";
+            return false;
+        }
+    }
+    return false;
+}
+
+
+
 void expression_variable_terminal_value::explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o)
 {
     std::string actual_variable_name = my_variable_name->get_actual_name(source);

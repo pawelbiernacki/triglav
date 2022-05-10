@@ -997,11 +997,15 @@ public:
      * The output argument may be nullptr!
      */
     virtual bool get_can_be_evaluated(agent & a, belief & b, my_iterator & source, input & j, input * j2, output * o) = 0;
+    
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) = 0;
 
     /**
      * The output argument may be nullptr!
      */
     virtual std::string get_evaluate(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) = 0;
+    
+    virtual std::string get_evaluate_given_assumption(agent & a, my_iterator & source) = 0;
 
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) = 0;
 
@@ -1035,8 +1039,12 @@ public:
     virtual void update_iterator(my_iterator & target) override;
 
     virtual bool get_can_be_evaluated(agent & a, belief & b, my_iterator & source, input & j, input * j2, output * o) override;
+    
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) override;
 
     virtual std::string get_evaluate(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
+    
+    virtual std::string get_evaluate_given_assumption(agent & a, my_iterator & source) override;
 
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
 
@@ -1066,7 +1074,11 @@ public:
 
     virtual bool get_can_be_evaluated(agent & a, belief & b, my_iterator & source, input & j, input * j2, output * o) override;
 
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) override;
+    
     virtual std::string get_evaluate(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
+    
+    virtual std::string get_evaluate_given_assumption(agent & a, my_iterator & source) override;
 
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
 
@@ -1096,7 +1108,11 @@ public:
 
     virtual bool get_can_be_evaluated(agent & a, belief & b, my_iterator & source, input & j, input * j2, output * o) override;
 
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) override;
+    
     virtual std::string get_evaluate(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
+    
+    virtual std::string get_evaluate_given_assumption(agent & a, my_iterator & source) override;
 
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
 
@@ -1124,10 +1140,14 @@ public:
     virtual void update_iterator(my_iterator & target) = 0;
 
     virtual bool get_evaluate(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) = 0;
+    
+    virtual bool get_evaluate_given_assumption(agent & a, my_iterator & source) = 0;
 
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) = 0;
 
     virtual bool get_can_be_evaluated(agent & a, belief & b, my_iterator & source, input & j, input * j2, output * o) = 0;
+    
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) = 0;
 
     /**
      * assert_is_true may change the agent's belief so that the logical expression is true.
@@ -1167,6 +1187,11 @@ public:
     {
         return left->get_evaluate(a, b, b2, source, j, j2, o) && right->get_evaluate(a, b, b2, source, j, j2, o);
     }
+    
+    virtual bool get_evaluate_given_assumption(agent & a, my_iterator & source) override
+    {
+        return left->get_evaluate_given_assumption(a, source) && right->get_evaluate_given_assumption(a, source);
+    }
 
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override
     {
@@ -1180,6 +1205,8 @@ public:
     }
 
     virtual bool get_can_be_evaluated(agent & a, belief & b, my_iterator & source, input & j, input * j2, output * o) override;
+    
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) override;
 
     virtual void assert_is_true(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, bool & assertion_failed) override
     {
@@ -1225,6 +1252,10 @@ public:
     {
         return left->get_evaluate(a, b, b2, source, j, j2, o) || right->get_evaluate(a, b, b2, source, j, j2, o);
     }
+    virtual bool get_evaluate_given_assumption(agent & a, my_iterator & source) override
+    {
+        return left->get_evaluate_given_assumption(a, source) || right->get_evaluate_given_assumption(a, source);
+    }
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override
     {
         left->explain_evaluation(a, b, b2, source, j, j2, o);
@@ -1239,6 +1270,11 @@ public:
     {
         return left->get_can_be_evaluated(a, b, source, j, j2, o) && right->get_can_be_evaluated(a, b, source, j, j2, o);
     }
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) override
+    {
+        return left->get_can_be_evaluated_given_assumption(a, source) && right->get_can_be_evaluated_given_assumption(a, source);
+    }
+    
     virtual void assert_is_true(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, bool & assertion_failed) override
     {
         assertion_failed = false;
@@ -1277,8 +1313,15 @@ public:
         right->update_iterator(target);
     }
     virtual bool get_can_be_evaluated(agent & a, belief & b, my_iterator & source, input & j, input * j2, output * o) override;
+    
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) override;
 
     virtual bool get_evaluate(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
+    
+    virtual bool get_evaluate_given_assumption(agent & a, my_iterator & source) override
+    {
+        return left->get_evaluate_given_assumption(a, source) == right->get_evaluate_given_assumption(a, source);
+    }
 
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
 
@@ -1314,6 +1357,14 @@ public:
     virtual bool get_evaluate(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override
     {
         return !inner->get_evaluate(a, b, b2, source, j, j2, o);
+    }
+    virtual bool get_evaluate_given_assumption(agent & a, my_iterator & source) override
+    {
+        return !inner->get_evaluate_given_assumption(a, source); 
+    }
+    virtual bool get_can_be_evaluated_given_assumption(agent & a, my_iterator & source) override
+    {
+        return inner->get_can_be_evaluated_given_assumption(a, source);
     }
     virtual void explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override
     {
@@ -1355,6 +1406,8 @@ class statement
 public:
     virtual ~statement() {}
     virtual void execute(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) = 0;
+    virtual void execute_given_assumption(agent & a, my_iterator & source, bool & impossible_flag) {}
+    
     virtual void report(std::ostream & s) const = 0;
     virtual void update_iterator(my_iterator & target) = 0;
 };
@@ -1400,6 +1453,7 @@ public:
     virtual void execute(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o) override;
     virtual void report(std::ostream & s) const override;
     virtual void update_iterator(my_iterator & target) override {}
+    virtual void execute_given_assumption(agent & a, my_iterator & source, bool & impossible_flag) { impossible_flag = true; }
 };
 
 template <> constexpr const bool is_reportable<statement_impossible> {true};
@@ -1740,6 +1794,8 @@ public:
 
     bool try_to_apply_as_a_static_rule(agent & a, belief & b, input & j, input * j2);
     bool try_to_apply_as_a_dynamic_rule(agent & a, belief & b, belief * b2, input & j, input * j2, output & o);
+    bool try_to_apply_as_assumption_rule(agent & a, bool & impossible_flag);
+    
 
     /**
      * The dynamic rules contain at least one output variable (initial value).
@@ -1863,10 +1919,7 @@ public:
         bool get_finished() const;  // this function is not virtual!
         
         my_iterator_for_estimating_variable_instances& operator++();        
-        
-        void iterate() { operator++(); }
-        
-        
+                
         void report(std::ostream & s) const;        
         
         agent & get_agent() const { return my_agent; }
@@ -1960,9 +2013,27 @@ public:
             bool get_has_exactly_one_usual_value() const { return has_exactly_one_usual_value; }
         };
         
-        std::map<std::string, std::list<std::string>::iterator> map_variable_instances_to_values;
+    bool allows_unusual_values;
+    bool has_exactly_one_usual_value;
+    bool incremented;
+    
+    void on_exactly_one_usual_value(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag);
+    
+    void on_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag);
+    
+    void on_end_of_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag);
+        
+    protected:
+        
+        std::map<std::string, std::list<std::string>::iterator> map_variable_instances_to_values, map_variable_instances_to_end_iterator;
         
         std::map<std::string, list_of_possible_values_and_some_other_stuff> map_variable_instances_to_list_of_possible_values;
+                
+        /**
+         * This number indicates how many variable instances (beginning from the first one in the order determined by vector_of_variable_instances_names)
+         * have been checked according to the rules.
+         */
+        unsigned amount_of_checked_variable_instances;
                         
     protected:
         void reinitialize();
@@ -1976,6 +2047,8 @@ public:
         my_iterator_for_variable_instances& operator++();        
         
         void report(std::ostream & s) const;
+        
+        std::string get_value(const std::string & n) const;
     };
     
     /**
@@ -2048,6 +2121,10 @@ private:
     int rank;
     
     int get_variable_instance_rank(const std::string & n) const;
+    
+    void assume_only_the_first_n_variable_instance_known(unsigned n, const std::vector<std::string> & v);
+    
+    bool get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_variable_instances & i);
 
 private:
 
@@ -2081,6 +2158,13 @@ private:
     unsigned max_amount_of_unusual_cases;
     unsigned amount_of_processors, amount_of_case_files;
     std::string case_files_prefix, case_files_extension, case_files_path;
+    
+    /**
+     * This is a map used to convert a variable instance name to a boolean flag denoting whether it is assumed.
+     */
+    std::map<std::string, bool> map_name_to_assumed_flag;
+    
+    std::map<std::string, std::string> map_name_to_assumed_value;
 
     void internal_expand_for_types(unsigned i);
     void internal_expand_for_values();
@@ -2120,6 +2204,10 @@ public:
     agent();
         
     void add_consider_variable_instance(const std::string & n, int rank);
+    
+    bool get_is_assumed(const std::string & n) const;
+    
+    std::string get_assumed_value(const std::string & n) const;
     
     /**
      * This method is called by the cpp_parser, it calculates the ranks of the "consider commands", i.e. the first

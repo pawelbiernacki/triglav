@@ -1,0 +1,44 @@
+#!triglav
+
+# 
+type boolean={false,true},
+    place={Krakow,Warszawa,Wroclaw},
+    person={Conan, Gotrek, Gwaigilion},
+    
+    action={doing_nothing, 
+            going_to_(X:place),
+            attacking_(X:person)},
+    
+    information={(X:person)_is_in_(Y:place),
+                (X:person)_is_(Y:action),
+                (X:person)_has_attacked_(Y:person)};
+    
+input variable where_am_I:place,
+    I_have_won_a_fight:boolean usually {false},
+    I_can_see_(X:person):boolean,
+    (X:person)_is_telling_me_(Y:information):boolean usually {false},
+    (X:person)_is_attacking_me:boolean usually {false};
+    
+output variable I_do:action;
+hidden variable where_is_(X:person):place,
+                (X:person)_can_see_(Y:person):boolean,
+                (X:person)_has_attacked_(Y:person):boolean usually {false};
+                
+expand(2);
+
+consider I_can_see_Conan;
+consider where_am_I;
+consider where_is_Gotrek;
+consider I_can_see_Gotrek;
+consider where_is_Gwaigilion;
+consider I_can_see_Gwaigilion;
+ 
+if (initial value I_can_see_Conan == false)
+{
+    impossible;
+}
+
+if (initial value where_am_I == initial value where_is_Gotrek && I_can_see_Gotrek==false)
+{
+    impossible;
+}

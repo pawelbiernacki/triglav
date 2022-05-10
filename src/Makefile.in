@@ -149,7 +149,9 @@ am_libtriglav_la_OBJECTS = scanner.lo agent.lo type.lo \
 	command_generate_cases.lo command_validate_cases.lo \
 	cases_parser.lo command_save_databank.lo \
 	command_open_databank.lo statement_impossible.lo \
-	command_estimate_cases.lo command_consider.lo
+	command_estimate_cases.lo command_consider.lo \
+	my_iterator_for_estimating_variable_instances.lo \
+	my_iterator_for_variable_instances.lo
 libtriglav_la_OBJECTS = $(am_libtriglav_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -195,8 +197,10 @@ am__depfiles_remade = ./$(DEPDIR)/agent.Plo ./$(DEPDIR)/belief.Plo \
 	./$(DEPDIR)/input_variable_instance.Plo \
 	./$(DEPDIR)/logical_expression_and.Plo \
 	./$(DEPDIR)/logical_expression_equality.Plo \
-	./$(DEPDIR)/my_iterator.Plo ./$(DEPDIR)/output.Plo \
-	./$(DEPDIR)/output_variable.Plo \
+	./$(DEPDIR)/my_iterator.Plo \
+	./$(DEPDIR)/my_iterator_for_estimating_variable_instances.Plo \
+	./$(DEPDIR)/my_iterator_for_variable_instances.Plo \
+	./$(DEPDIR)/output.Plo ./$(DEPDIR)/output_variable.Plo \
 	./$(DEPDIR)/output_variable_instance.Plo ./$(DEPDIR)/rule.Plo \
 	./$(DEPDIR)/scanner.Plo ./$(DEPDIR)/set_of_possible_values.Plo \
 	./$(DEPDIR)/statement_add_payoff.Plo \
@@ -601,7 +605,8 @@ libtriglav_la_SOURCES = scanner.l agent.cc type.cc generic_name_list.cc generic_
 		logical_expression_equality.cc cpp_parser.cc command_expand.cc command_loop.cc command_report.cc output.cc logical_expression_and.cc \
 		statement_add_payoff.cc statement_there_is_a_chance.cc input_variable.cc output_variable.cc hidden_variable.cc input_variable_instance.cc \
 		output_variable_instance.cc hidden_variable_instance.cc set_of_possible_values.cc command_generate_cases.cc command_validate_cases.cc \
-		cases_parser.cc command_save_databank.cc command_open_databank.cc statement_impossible.cc command_estimate_cases.cc command_consider.cc
+		cases_parser.cc command_save_databank.cc command_open_databank.cc statement_impossible.cc command_estimate_cases.cc command_consider.cc \
+		my_iterator_for_estimating_variable_instances.cc my_iterator_for_variable_instances.cc
 
 triglav_SOURCES = triglav.cc 
 triglav_LDADD = libtriglav.la @XML_LIBS@
@@ -766,6 +771,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logical_expression_and.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logical_expression_equality.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/my_iterator.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/my_iterator_for_estimating_variable_instances.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/my_iterator_for_variable_instances.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/output.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/output_variable.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/output_variable_instance.Plo@am__quote@ # am--include-marker
@@ -1202,6 +1209,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/logical_expression_and.Plo
 	-rm -f ./$(DEPDIR)/logical_expression_equality.Plo
 	-rm -f ./$(DEPDIR)/my_iterator.Plo
+	-rm -f ./$(DEPDIR)/my_iterator_for_estimating_variable_instances.Plo
+	-rm -f ./$(DEPDIR)/my_iterator_for_variable_instances.Plo
 	-rm -f ./$(DEPDIR)/output.Plo
 	-rm -f ./$(DEPDIR)/output_variable.Plo
 	-rm -f ./$(DEPDIR)/output_variable_instance.Plo
@@ -1292,6 +1301,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/logical_expression_and.Plo
 	-rm -f ./$(DEPDIR)/logical_expression_equality.Plo
 	-rm -f ./$(DEPDIR)/my_iterator.Plo
+	-rm -f ./$(DEPDIR)/my_iterator_for_estimating_variable_instances.Plo
+	-rm -f ./$(DEPDIR)/my_iterator_for_variable_instances.Plo
 	-rm -f ./$(DEPDIR)/output.Plo
 	-rm -f ./$(DEPDIR)/output_variable.Plo
 	-rm -f ./$(DEPDIR)/output_variable_instance.Plo

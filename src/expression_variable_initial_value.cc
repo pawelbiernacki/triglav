@@ -161,6 +161,64 @@ bool expression_variable_initial_value::get_can_be_evaluated(agent & a, belief &
     return false;
 }
 
+bool expression_variable_initial_value::get_can_be_evaluated_given_assumption(agent & a, my_iterator & source)
+{
+    std::string actual_variable_name = my_variable_name->get_actual_name(source);
+    auto x = a.get_map_name_to_variable_instance().find(actual_variable_name);
+
+    if (x != a.get_map_name_to_variable_instance().end())
+    {
+        switch ((*x).second->get_mode())
+        {
+        case variable_mode::HIDDEN:
+        {
+            return a.get_is_assumed(actual_variable_name);
+        }
+        break;
+
+        case variable_mode::INPUT:
+            //std::cout << "it is an input variable\n";
+            return a.get_is_assumed(actual_variable_name);
+
+        case variable_mode::OUTPUT:
+            //std::cout << "it is an output variable\n";
+            //std::cout << "RETURN " << (o!=nullptr?"true": "false") << "\n";
+            return false;
+        }
+    }
+    
+    return false;
+}
+
+
+std::string expression_variable_initial_value::get_evaluate_given_assumption(agent & a, my_iterator & source)
+{
+    std::string actual_variable_name = my_variable_name->get_actual_name(source);
+    auto x = a.get_map_name_to_variable_instance().find(actual_variable_name);
+
+    if (x != a.get_map_name_to_variable_instance().end())
+    {
+        switch ((*x).second->get_mode())
+        {
+        case variable_mode::HIDDEN:
+        {
+            return a.get_assumed_value(actual_variable_name);
+        }
+        break;
+
+        case variable_mode::INPUT:
+            //std::cout << "it is an input variable\n";
+            return a.get_assumed_value(actual_variable_name);
+
+        case variable_mode::OUTPUT:
+            //std::cout << "it is an output variable\n";
+            //std::cout << "RETURN " << (o!=nullptr?"true": "false") << "\n";
+            return "";
+        }
+    }
+    return "";
+}
+
 
 void expression_variable_initial_value::explain_evaluation(agent & a, belief & b, belief * b2, my_iterator & source, input & j, input * j2, output * o)
 {
