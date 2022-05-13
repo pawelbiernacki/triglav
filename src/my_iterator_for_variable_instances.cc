@@ -85,9 +85,9 @@ agent::my_iterator_for_variable_instances::my_iterator_for_variable_instances(ag
 
 void agent::my_iterator_for_variable_instances::partial_reinitialize(unsigned r)
 {
-    for (unsigned p=r; p<vector_of_variable_instances_names.size(); p++)
+    if (r<vector_of_variable_instances_names.size())
     {
-        auto & x=vector_of_variable_instances_names[p];                        
+        auto & x=vector_of_variable_instances_names[r];                        
         auto i=map_variable_instances_to_values.find(x);
                                     
         unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
