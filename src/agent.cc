@@ -1064,6 +1064,11 @@ std::string agent::get_assumed_value(const std::string & n) const
 bool agent::get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_variable_instances & i)
 {
     bool impossible = false;
+        
+    if (!i.get_is_partially_not_end(n))
+    {
+        return false;
+    }
     
     for (auto x: map_name_to_assumed_flag)
     {
@@ -1080,9 +1085,14 @@ bool agent::get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_vari
         if (j->try_to_apply_as_assumption_rule(*this, impossible))
         {
             if (impossible)
+            {
+                //std::cout << "the rule " << j->get_comment() << " is violated!\n";
                 return false;
+            }
         }
     }    
+    //std::cout << "no rule is violated!\n";    
+    
     return true;
 }
 

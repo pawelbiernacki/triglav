@@ -1802,6 +1802,7 @@ public:
      */
     bool get_is_dynamic(agent & a, belief & b, my_iterator & source, input & j) const;
 
+    const std::string get_comment() const { return comment; }
 };
 
 template <> constexpr const bool is_reportable<rule> {true};
@@ -2016,12 +2017,17 @@ public:
     bool allows_unusual_values;
     bool has_exactly_one_usual_value;
     bool incremented;
+    std::string current_variable_instance_name;
     
-    void on_exactly_one_usual_value(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag);
+    void on_exactly_one_usual_value(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r);
     
-    void on_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag);
+    void on_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r);
     
-    void on_end_of_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag);
+    void on_end_of_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r);
+    
+    bool get_is_assumed_ok(unsigned r);
+    
+    void partial_reinitialize(unsigned r);
         
     protected:
         
@@ -2041,12 +2047,16 @@ public:
     public:
         my_iterator_for_variable_instances(agent & a, unsigned d);
         
+        bool get_is_partially_not_end(unsigned n);
+        
         bool get_is_valid() const;
         bool get_finished() const;
         
         my_iterator_for_variable_instances& operator++();        
         
         void report(std::ostream & s) const;
+        
+        void partial_report(std::ostream & s) const;
         
         std::string get_value(const std::string & n) const;
     };

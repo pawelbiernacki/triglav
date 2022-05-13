@@ -5,6 +5,7 @@
 #include <limits>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <cstring>
 
 using namespace triglav;
 //#define TRIGLAV_DEBUG
@@ -81,6 +82,24 @@ agent::my_iterator_for_variable_instances::my_iterator_for_variable_instances(ag
 }
 
 
+
+void agent::my_iterator_for_variable_instances::partial_reinitialize(unsigned r)
+{
+    for (unsigned p=r; p<vector_of_variable_instances_names.size(); p++)
+    {
+        auto & x=vector_of_variable_instances_names[p];                        
+        auto i=map_variable_instances_to_values.find(x);
+                                    
+        unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
+        allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
+        has_exactly_one_usual_value = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_exactly_one_usual_value();            
+        auto my_end = map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values);
+                
+        (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(allows_unusual_values);                                        
+    }
+}
+
+
 void agent::my_iterator_for_variable_instances::reinitialize()
 {
     unsigned index = 0;
@@ -95,7 +114,21 @@ void agent::my_iterator_for_variable_instances::reinitialize()
     amount_of_checked_variable_instances = 0;
 }
 
-
+bool agent::my_iterator_for_variable_instances::get_is_partially_not_end(unsigned n)
+{
+    for (unsigned j=0; j<n; j++)
+    {
+        auto & x = vector_of_variable_instances_names[j];
+        auto i = map_variable_instances_to_values.find(x);
+        unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
+        bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
+        if ((*i).second == map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values))
+        {
+            return false;
+        }
+    }
+    return true;
+}
 
 bool agent::my_iterator_for_variable_instances::get_is_valid() const
 {
@@ -131,7 +164,7 @@ void agent::my_iterator_for_variable_instances::report(std::ostream & s) const
         unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
         bool has_usual_values = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_usual_values();
         bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
-        
+                
         if (allows_unusual_values || !has_usual_values)
         {
             if (!first) s << ",";
@@ -167,14 +200,221 @@ std::string agent::my_iterator_for_variable_instances::get_value(const std::stri
     return *map_variable_instances_to_values.at(n);         
 }
 
-void agent::my_iterator_for_variable_instances::on_exactly_one_usual_value(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag)
+
+bool agent::my_iterator_for_variable_instances::get_is_assumed_ok(unsigned r)
+{
+    my_agent.assume_only_the_first_n_variable_instance_known(r+1, vector_of_variable_instances_names);
+    if (my_agent.get_the_iterator_is_partially_valid(r+1, *this))
+    {
+        return true;
+    }
+    return false;
+}
+
+
+void agent::my_iterator_for_variable_instances::partial_report(std::ostream & s) const
+{
+    bool first = true;
+        
+    s << "PARTIAL REPORT [" << amount_of_variable_instances << "]";
+    
+    my_vector_of_indices.report(s);
+    
+    s << "{";
+
+    
+    unsigned number=0;
+    for (auto & x: vector_of_variable_instances_names)
+    {
+        if (++number == amount_of_checked_variable_instances)
+        {
+            break;
+        }
+        auto i = map_variable_instances_to_values.find(x);
+        unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
+        bool has_usual_values = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_usual_values();
+        bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
+        
+        if (allows_unusual_values || !has_usual_values)
+        {
+            if (!first) s << ",";
+            
+            if ((*i).second != map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values))
+            {
+                s << (*i).first << "=>" << *(*i).second;
+            }
+            else
+            {
+                s << (*i).first << "=>" << "END";
+            }
+            first = false;
+        }
+    }
+    s << "}\n";    
+}
+
+
+void agent::my_iterator_for_variable_instances::on_exactly_one_usual_value(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r)
 {
     (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(false);
-    DEBUG("for this variable instance it must be " << *(*i).second);
+    DEBUG("for this variable instance (" << current_variable_instance_name << ") it must be " << *(*i).second);
+            
     if (incremented)
     {
-        r++;
-        DEBUG("incrementing r to " << r);
+        if (get_is_assumed_ok(r))
+        {
+            DEBUG("the iterator is partially valid for " << (r+1));
+            amount_of_checked_variable_instances = r+1;
+            r++;
+            DEBUG("incrementing r to " << r);
+            partial_reinitialize(r);
+        }
+        else
+        {
+        incremented = false;
+        if (r == 0)
+        {
+            amount_of_checked_variable_instances=0;
+            ++my_vector_of_indices;
+            reinitialize();
+            
+            DEBUG("incrementing my_vector_of_indices");
+                        
+            if (my_vector_of_indices.get_finished())
+            {
+                processed = true;                            
+            }
+        }
+        else
+        {
+            r--;
+            amount_of_checked_variable_instances = r;
+            DEBUG("decrementing r to " << r);
+            partial_reinitialize(r+1);
+        }            
+        }
+    }
+    else
+    {
+        incremented = false;
+        if (r == 0)
+        {
+            amount_of_checked_variable_instances=0;
+            ++my_vector_of_indices;
+            reinitialize();
+            
+            DEBUG("incrementing my_vector_of_indices");
+                        
+            if (my_vector_of_indices.get_finished())
+            {
+                processed = true;                            
+            }
+        }
+        else
+        {
+            r--;
+            amount_of_checked_variable_instances = r;
+            DEBUG("decrementing r to " << r);
+            partial_reinitialize(r+1);
+        }
+    }
+    
+}
+
+
+
+void agent::my_iterator_for_variable_instances::on_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r)
+{
+    if (!incremented)
+    {
+        (*i).second++;
+        incremented=true;
+        DEBUG("it is not the end, incrementing at " << r << " the variable instance " << current_variable_instance_name);
+        partial_reinitialize(r+1);
+    }                
+    
+    if (incremented)
+    {        
+        if (get_is_assumed_ok(r))
+        {        
+            DEBUG("the iterator is partially valid for " << (r+1) << " variable instances");
+            //partial_report(std::cout);
+            amount_of_checked_variable_instances = r + 1;        
+            r++;
+            DEBUG("incrementing r to " << r);                        
+        }
+        else
+        {
+            incremented = false;
+        }
+    }
+    else
+    {
+        incremented = false;
+        if (r == 0)
+        {
+            amount_of_checked_variable_instances=0;
+            ++my_vector_of_indices;
+            reinitialize();
+            
+            DEBUG("incrementing my_vector_of_indices");
+                        
+            if (my_vector_of_indices.get_finished())
+            {
+                processed = true;                            
+            }
+        }
+        else
+        {
+            r--;
+            amount_of_checked_variable_instances = r;
+            DEBUG("decrementing r to " << r);
+            partial_reinitialize(r+1);
+        }
+    }
+}
+
+void agent::my_iterator_for_variable_instances::on_end_of_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r)
+{                
+    DEBUG("it is the end, setting to begin at " << r << " the variable instance " << current_variable_instance_name);
+    (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(allows_unusual_values);                                    
+    partial_reinitialize(r+1);
+                
+    
+    if (incremented)
+    {
+        if (get_is_assumed_ok(r))
+        {                
+            DEBUG("the iterator is partially valid for " << (r+1));
+            //partial_report(std::cout);
+            amount_of_checked_variable_instances = r + 1;        
+            r++;
+            DEBUG("incrementing r to " << r);
+        }
+        else
+        {
+            incremented = false;
+            if (r == 0)
+            {
+                amount_of_checked_variable_instances=0;
+                ++my_vector_of_indices;
+                reinitialize();
+            
+                DEBUG("incrementing my_vector_of_indices");
+                        
+                if (my_vector_of_indices.get_finished())
+                {
+                    processed = true;                            
+                }
+            }
+            else
+            {
+                r--;
+                amount_of_checked_variable_instances = r;
+                DEBUG("decrementing r to " << r);
+                partial_reinitialize(r+1);
+            }        
+        }
     }
     else
     {
@@ -194,59 +434,11 @@ void agent::my_iterator_for_variable_instances::on_exactly_one_usual_value(std::
         else
         {
             r--;
+            amount_of_checked_variable_instances = r;
             DEBUG("decrementing r to " << r);
-        }
-        continue_flag = true;
-    }    
-}
-
-
-void agent::my_iterator_for_variable_instances::on_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag)
-{
-    if (!incremented)
-    {
-        DEBUG("it is not the end, incrementing at " << r);
-        (*i).second++;
-        incremented=true;
+            partial_reinitialize(r+1);
+        }        
     }
-                
-    my_agent.assume_only_the_first_n_variable_instance_known(r+1, vector_of_variable_instances_names);
-    if (my_agent.get_the_iterator_is_partially_valid(r+1, *this))
-    {
-        //DEBUG("the iterator is partially valid for " << (r+1));
-        if (r+1==vector_of_variable_instances_names.size())
-        {
-            amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
-        }
-        r++;
-        DEBUG("incrementing r to " << r);
-        continue_flag = true;                        
-    }
-    else
-    {
-        incremented = false;
-    }    
-}
-
-void agent::my_iterator_for_variable_instances::on_end_of_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r, bool & continue_flag)
-{                
-    DEBUG("it is the end");
-    if (r+1 != vector_of_variable_instances_names.size())
-    {
-        (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(allows_unusual_values);                    
-                    
-        incremented=false;
-        r--;        
-        
-        DEBUG("decrementing r to " << r);
-        continue_flag = true;
-    }
-    else
-    {
-        r--;
-        DEBUG("decrementing r to " << r);
-        continue_flag = true;
-    }    
 }
 
 
@@ -272,36 +464,37 @@ agent::my_iterator_for_variable_instances& agent::my_iterator_for_variable_insta
         DEBUG("incrementing the iterator, begin from " << amount_of_checked_variable_instances);
         
         incremented = false;
-                
+        
         for (unsigned r=amount_of_checked_variable_instances-1; (r<vector_of_variable_instances_names.size()) && !processed;)            
         {
-            auto & x=vector_of_variable_instances_names[r];
-            auto i=map_variable_instances_to_values.find(x);
+            current_variable_instance_name=vector_of_variable_instances_names[r];            
+            char xn[1024];
+            strcpy(xn, current_variable_instance_name.c_str());
+                        
+            auto i=map_variable_instances_to_values.find(current_variable_instance_name);
                                     
             unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
             allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
             has_exactly_one_usual_value = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_exactly_one_usual_value();            
             auto my_end = map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values);
                         
-            DEBUG("try to increment " << x << ", number " << r << " " << (allows_unusual_values ? "allows unusual values" : "does not allow unusual values") 
-                << " " << (has_exactly_one_usual_value ? "has exactly one usual value" : "has more usual values") << " " << (incremented ? "incremented" : "not incremented"));
+            DEBUG("try to increment " << current_variable_instance_name << ", number " << r << " " << (allows_unusual_values ? "allows unusual values" : "does not allow unusual values") << " " << (has_exactly_one_usual_value ? "has exactly one usual value" : "has more usual values") << " " << (incremented ? "incremented" : "not incremented"));
             
-            bool continue_flag = false;            
+            //partial_report(std::cout);
+                                    
             if (!allows_unusual_values && has_exactly_one_usual_value)
             {
-                on_exactly_one_usual_value(i, r, continue_flag);                
+                on_exactly_one_usual_value(i, r);                
             }
             else
             if ((*i).second != my_end)
             {
-                on_regular_iteration(i, r, continue_flag);
+                on_regular_iteration(i, r);
             }
             else
             {   // if (*i).second == my_end
-                on_end_of_regular_iteration(i, r, continue_flag);
+                on_end_of_regular_iteration(i, r);
             }
-            if (continue_flag)
-                continue;
         }
     }
     return *this;
