@@ -1,3 +1,3 @@
 
 
-EXTRA_DIST = *.triglav *.xml
+EXTRA_DIST = *.triglav *.xml *.txt

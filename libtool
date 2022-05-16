@@ -1,6 +1,6 @@
 #! /bin/sh
 # Generated automatically by config.status (triglav) 0.0.0
-# Libtool was configured on host hexul-localdomain:
+# Libtool was configured on host ciapul.pawelbiernacki.net:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 
 # Provide generalized library-building support services.
@@ -285,7 +285,7 @@ hardcode_into_libs=yes
 sys_lib_search_path_spec="/usr/local/lib/gcc/x86_64-pc-linux-gnu/11.2.0 /usr/local/lib64 /lib64 /usr/lib64 /usr/local/lib /lib /usr/lib "
 
 # Detected run-time system search path for libraries.
-sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib /usr/lib64/R/lib /usr/lib64//bind9-export/ /usr/lib64/fdk-aac/  /opt/intel/lib/intel64 /opt/intel/mkl/lib/intel64 /usr/lib64/iscsi /usr/lib64/qt-3.3/lib /usr/lib64/tcl8.6 "
+sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib /usr/lib64/atlas /usr/lib64//bind9-export/      /usr/lib64/iscsi /usr/lib64/llvm3.7 /usr/lib64/llvm3.9/lib /usr/lib64/llvm6.0/lib /usr/lib64/octave/4.2.2 /usr/lib/wine/ /usr/lib64/wine/ "
 
 # Explicit LT_SYS_LIBRARY_PATH set during ./configure time.
 configure_time_lt_sys_library_path=""

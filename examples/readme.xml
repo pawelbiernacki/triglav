@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <triglav:databank xmlns:triglav="https://www.perkun.org/triglav/0.0.0">
     <!--Metadata about this document-->
-    <triglav:meta version="0.0.0" date="2022-03-22" audience="all">
+    <triglav:meta version="0.0.0" date="2022-05-16" audience="all">
         <triglav:authors>
             <triglav:author name="Your Name" email="your@email.com" website="https://your.website" type="human">
             </triglav:author>
@@ -3667,13 +3667,15 @@
                 </triglav:variable_instances>
             </triglav:derived>
         </triglav:specification>
-        <triglav:case_files amount="144" prefix="cases_" extension="txt" path=".">
+        <triglav:case_files amount="1" prefix="cases_" extension="txt" path=".">
         </triglav:case_files>
-        <triglav:validation_range>
-        </triglav:validation_range>
+        <triglav:generator max_amount_of_unusual_values="1">
+        </triglav:generator>
         <triglav:machine amount_of_processors="1">
         </triglav:machine>
-        <triglav:visible_states amount="???" prefix="visible_state_" extension="txt" path=".">
+        <triglav:validation_range>
+        </triglav:validation_range>
+        <triglav:visible_states prefix="visible_state_" extension="txt" path=".">
             <triglav:filename_schema amount_of_digits="2">
                 <triglav:input_variable_instance name="where_am_I" id="00" type_instance="place">
                 </triglav:input_variable_instance>

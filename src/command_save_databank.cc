@@ -233,10 +233,7 @@ void command_save_databank::execute(agent & a) const
     w.write_attribute("path", ".");
     
     w.end_element(); // case files
-    
-    w.start_element("triglav:validation_range");
-    w.end_element(); // validation range
-    
+        
     w.start_element("triglav:generator");
     w.write_attribute("max_amount_of_unusual_values", "1");
     w.end_element(); // generator
@@ -245,6 +242,9 @@ void command_save_databank::execute(agent & a) const
     w.write_attribute("amount_of_processors", "1"); 
     w.end_element();        
     
+    w.start_element("triglav:validation_range");
+    w.end_element(); // validation range
+
     w.start_element("triglav:visible_states");
     w.write_attribute("prefix", "visible_state_");
     w.write_attribute("extension", "txt");
