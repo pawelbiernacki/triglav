@@ -451,6 +451,16 @@ uninstall-am:
 .PRECIOUS: Makefile
 
 
+all:
+
+readme5.xml:
+	triglav step1_save_databank.triglav; \
+	triglav step2_estimate_cases.triglav > estimated_cases.txt; \
+	triglav_databank_set_amount_of_processors.pl readme.xml 2 > readme2.xml; \
+	triglav_databank_set_validation_range.pl readme2.xml estimated_cases.txt 0 3 > readme3.xml; \
+	triglav_databank_set_amount_of_case_files.pl readme3.xml 4 > readme4.xml; \
+	triglav_databank_distribute_workload.pl readme4.xml > readme5.xml
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

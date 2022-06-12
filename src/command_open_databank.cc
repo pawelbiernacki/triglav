@@ -155,6 +155,7 @@ void databank_xml_parser::parse_filename_schema(my_xml_document_databank::iterat
 
 void databank_xml_parser::parse_data(my_xml_document_databank::iterator & data)
 {
+    unsigned processor=0;
     for (my_xml_document_databank::iterator k{(*data)->children}; k; ++k)
     {
         if ((*k)->type == XML_ELEMENT_NODE)
@@ -237,12 +238,23 @@ void databank_xml_parser::parse_data(my_xml_document_databank::iterator & data)
                         std::string x2{(const char *)(*l)->name};
                         if (x2 == "validation_item")
                         {
+                            for (my_xml_document_databank::attribute_iterator a{l}; a; ++a)
+                            {
+                                if (std::string((const char *)(*a)->name) == "processor")
+                                {
+                                    my_string value{l, a};
+                                    std::stringstream s(*value);
+                                    s >> processor;
+                                }
+                            }
+                            
                             for (my_xml_document_databank::iterator m{(*l)->children}; m; ++m)
                             {
                                 if ((*m)->type == XML_TEXT_NODE)
                                 {                                    
-                                    std::string x3{(const char *)(*m)->content};                                                                        
-                                    my_agent.add_validation_item(x3);
+                                    std::string x3{(const char *)(*m)->content};       
+                                    //std::cout << "range " << x3 << " procesor " << processor << "\n";
+                                    my_agent.add_validation_item(x3, processor);
                                 }
                             }                            
                         }

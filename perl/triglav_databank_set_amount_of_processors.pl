@@ -40,14 +40,7 @@ sub handle_start
         my $path = $attr{path};
         $path =~ s/\/$//;    
         
-        print "<$element ", join(" ", map { "$_=\"$attr{$_}\"" } sort keys %attr), ">";    
-                
-        for my $number (1..$attr{amount})
-        {
-            my $name = $path."/".$attr{prefix}.($number-1).".".$attr{extension};
-            my $n = ($number-1)%$amount_of_processors;
-            print "<$namespace:case_file name=\"$name\" processor=\"$n\"/>\n";
-        }
+        print "<$element ", join(" ", map { "$_=\"$attr{$_}\"" } sort keys %attr), ">\n";                    
     }
     else
     {

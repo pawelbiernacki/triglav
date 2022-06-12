@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 using namespace triglav;
-//#define TRIGLAV_DEBUG
+#define TRIGLAV_DEBUG
 
 #ifdef TRIGLAV_DEBUG
 #define DEBUG(X) std::cout << __FILE__ << " " << __LINE__ << ":" << X << "\n"
@@ -58,9 +58,9 @@ void agent::clear_validation_items()
     vector_of_validation_items.clear();
 }
     
-void agent::add_validation_item(const std::string & v)
+void agent::add_validation_item(const std::string & v, int processor_id)
 {
-    vector_of_validation_items.push_back(v);
+    vector_of_validation_items.push_back(std::pair(v,processor_id));    
 }
 
 
@@ -786,11 +786,11 @@ void agent::execute()
 }
 
 
-agent::my_output_multifile::output_file::output_file(const std::string & path, const std::string & prefix, unsigned n, const std::string & extension): number{n} 
+agent::my_output_multifile::output_file::output_file(const std::string & path, const std::string & prefix, unsigned n, const std::string & extension, int proc_id): number{n}, processor_id{proc_id}
 {
     std::stringstream filename_stream;
     
-    filename_stream << path << "/" << prefix << number << "." << extension;
+    filename_stream << path << "/" << prefix << processor_id << "_" << number << "." << extension;
     
     output_file_stream.open(filename_stream.str(), std::ofstream::out);
     
@@ -813,8 +813,8 @@ std::ofstream & agent::my_output_multifile::get_random_output_file_stream()
 }
 
 
-agent::my_output_multifile::my_output_multifile(const std::string & path, const std::string & prefix, unsigned amount_of_files, const std::string & extension): 
-    rng{dev()}, dist(1, amount_of_files)
+agent::my_output_multifile::my_output_multifile(const std::string & path, const std::string & prefix, unsigned amount_of_files, const std::string & extension, int proc_id): 
+    rng{dev()}, dist(1, amount_of_files), processor_id{proc_id}
 {
     if (amount_of_files == 0)
     {
@@ -822,7 +822,7 @@ agent::my_output_multifile::my_output_multifile(const std::string & path, const 
     }
     for (unsigned i{0}; i<amount_of_files; i++)
     {
-        vector_of_output_files.push_back(std::make_shared<output_file>(path, prefix, i, extension));
+        vector_of_output_files.push_back(std::make_shared<output_file>(path, prefix, i, extension, processor_id));
     }
 }
 
@@ -914,9 +914,39 @@ void agent::my_single_range_iterator_for_variable_instances::report(std::ostream
     my_iterator_for_variable_instances::report(s);    
 }
 
-
-
 void agent::generate_cases()
+{
+    std::vector<pid_t> vector_of_pids;
+    pid_t p;
+    
+    for (unsigned i = 1; i < amount_of_processors; i++)
+    {
+        p = fork();
+        if (p == 0)
+        {
+            // child
+            std::cout << "starting child process " << i << "\n";
+            // TODO - this should not be outcommented
+            //generate_cases_for_processor(i);
+            exit(EXIT_SUCCESS);
+        }
+        else
+        if (p == -1)
+        {
+            std::cerr << "failed to start child process " << i << "\n";
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            vector_of_pids.push_back(p);
+        }
+    }
+    std::cout << "the processor 0 is starting the operation\n";
+    // TODO - this should not be outcommented!
+    generate_cases_for_processor(1);
+}
+
+void agent::generate_cases_for_processor(int processor_id)
 {    
     /*
     std::cout << "generating cases for:\n";
@@ -926,15 +956,16 @@ void agent::generate_cases()
     }
     */
     
-    my_multifile = std::make_shared<my_output_multifile>(case_files_path, case_files_prefix, amount_of_case_files, case_files_extension);    
+    my_multifile = std::make_shared<my_output_multifile>(case_files_path, case_files_prefix, amount_of_case_files, case_files_extension, processor_id);    
 
     
     for (my_iterator_for_estimating_variable_instances m(*this, max_amount_of_unusual_cases); !m.get_finished(); ++m)
     {
         std::stringstream s;
         m.report(s);
+        std::string name=s.str();
         
-        if (std::find(vector_of_validation_items.begin(), vector_of_validation_items.end(), s.str())!=vector_of_validation_items.end())
+        if (std::find_if(vector_of_validation_items.begin(), vector_of_validation_items.end(), [&name, processor_id](auto &i){ return i.first==name && i.second==processor_id;})!=vector_of_validation_items.end())
         {
             /*
             std::cout << "consider validation range " << s.str() << " ";
@@ -943,7 +974,7 @@ void agent::generate_cases()
             */
 
             std::string former, former2;
-            for (my_single_range_iterator_for_variable_instances n(m, s.str()); !n.get_finished(); ++n)
+            for (my_single_range_iterator_for_variable_instances n(m, name); !n.get_finished(); ++n)
             {                
                 if (n.get_is_valid())
                 {

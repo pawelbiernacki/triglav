@@ -252,5 +252,5 @@ if (initial value I_have_won_a_fight==true)
     add_payoff(1.0);
 }
 
-open_databank("readme4.xml");
+open_databank("readme5.xml");
 validate_cases();

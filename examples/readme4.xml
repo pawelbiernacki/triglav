@@ -1,6 +1,6 @@
 <triglav:databank xmlns:triglav="https://www.perkun.org/triglav/0.0.0">
     
-    <triglav:meta audience="all" date="2022-05-16" version="0.0.0">
+    <triglav:meta audience="all" date="2022-05-17" version="0.0.0">
         <triglav:authors >
             <triglav:author email="your@email.com" name="Your Name" type="human" website="https://your.website">
             </triglav:author>
@@ -3666,23 +3666,19 @@
                 </triglav:variable_instances>
             </triglav:derived>
         </triglav:specification>
-        <triglav:case_files amount="1" extension="txt" path="." prefix="cases_"><triglav:case_file name="./cases_0.txt" processor="0"></triglav:case_file>
+        <triglav:case_files amount="4" extension="txt" path="." prefix="cases_">
 
         </triglav:case_files>
         <triglav:generator max_amount_of_unusual_values="1">
         </triglav:generator>
         <triglav:machine amount_of_processors="2">
         </triglav:machine>
-        <triglav:validation_range >
+        <triglav:validation_range ><triglav:validation_item >[434][0]</triglav:validation_item>
+<triglav:validation_item >[434][1]</triglav:validation_item>
+<triglav:validation_item >[434][2]</triglav:validation_item>
+<triglav:validation_item >[434][3]</triglav:validation_item>
 
-
-
-
-        <triglav:validation_item processor="0">[434][0]</triglav:validation_item>
-<triglav:validation_item processor="1">[434][1]</triglav:validation_item>
-<triglav:validation_item processor="0">[434][2]</triglav:validation_item>
-<triglav:validation_item processor="1">[434][3]</triglav:validation_item>
-</triglav:validation_range>
+        </triglav:validation_range>
         <triglav:visible_states extension="txt" path="." prefix="visible_state_">
             <triglav:filename_schema amount_of_digits="2">
                 <triglav:input_variable_instance id="00" name="where_am_I" type_instance="place">

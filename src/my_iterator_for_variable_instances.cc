@@ -8,7 +8,7 @@
 #include <cstring>
 
 using namespace triglav;
-//#define TRIGLAV_DEBUG
+#define TRIGLAV_DEBUG
 
 #ifdef TRIGLAV_DEBUG
 #define DEBUG(X) std::cout << __FILE__ << " " << __LINE__ << ":" << X << "\n"
@@ -75,10 +75,29 @@ agent::my_iterator_for_variable_instances::my_iterator_for_variable_instances(ag
             if (!success3)
             {
                 throw std::runtime_error("failed to insert a variable instance end iterator");
-            }
-            
+            }            
         }
-    }            
+    }
+    calculate_amount_of_checked_variable_instances();
+}
+
+
+void agent::my_iterator_for_variable_instances::calculate_amount_of_checked_variable_instances()
+{
+    amount_of_checked_variable_instances = 0;
+    for (unsigned r=0;r<vector_of_variable_instances_names.size();r++)
+    {
+        my_agent.assume_only_the_first_n_variable_instance_known(r+1, vector_of_variable_instances_names);
+        if (my_agent.get_the_iterator_is_partially_valid(r+1,*this))
+        {
+            amount_of_checked_variable_instances = r+1;
+            continue;
+        }
+        else
+        {
+            return;
+        }
+    }
 }
 
 
@@ -132,6 +151,11 @@ bool agent::my_iterator_for_variable_instances::get_is_partially_not_end(unsigne
 
 bool agent::my_iterator_for_variable_instances::get_is_valid() const
 {
+    if (amount_of_checked_variable_instances <vector_of_variable_instances_names.size())
+    {
+        return false;
+    }
+    
     for (auto i(map_variable_instances_to_values.begin()); i!=map_variable_instances_to_values.end(); i++)
     {
         unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
@@ -454,18 +478,23 @@ agent::my_iterator_for_variable_instances& agent::my_iterator_for_variable_insta
         {
             throw std::runtime_error("internal error - amount_of_checked_variable_instances exceeds vector_of_variable_instances_names.size()");
         }
+
+        unsigned first_r;
         
         if (amount_of_checked_variable_instances == 0)
         {
-            report(std::cout);
-            throw std::runtime_error("internal error - amount of checked variable instances equals 0");
+            first_r = 0;
         }
-        
+        else
+        {
+            first_r = amount_of_checked_variable_instances-1;
+        }
+                
         DEBUG("incrementing the iterator, begin from " << amount_of_checked_variable_instances);
         
         incremented = false;
         
-        for (unsigned r=amount_of_checked_variable_instances-1; (r<vector_of_variable_instances_names.size()) && !processed;)            
+        for (unsigned r=first_r; (r<vector_of_variable_instances_names.size()) && !processed;)            
         {
             current_variable_instance_name=vector_of_variable_instances_names[r];            
             char xn[1024];

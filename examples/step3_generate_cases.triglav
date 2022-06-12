@@ -1,11 +1,6 @@
 #!triglav
 
 #
-# This is a basic example that uses the command "generate_cases" to create 144 cases_*.txt files.
-# It generates the states (combinations of input and hidden variables) without validating them,
-# i.e. without checking with the rules whether the visible state implied by the state is OK.
-#
-# WARNING: Its execution takes 50 days on my machine!!! And the resulting files require 500GB disk space!!!
 # 
 type boolean={false,true},
     place={Krakow,Warszawa,Wroclaw,Poznan,Gdansk},
@@ -39,5 +34,66 @@ hidden variable where_is_(X:person):place,
                 
 expand(2);
 
-load_databank("readme3.xml");
+consider I_can_see_Gotrek; # always true
+consider Gotrek_can_see_Gotrek; # always true
+consider Conan_can_see_Conan;   # always true
+consider Gwaigilion_can_see_Gwaigilion; # always true
+consider where_am_I;
+consider where_is_Gotrek;
+consider where_is_Conan;
+consider I_can_see_Conan;
+consider Gotrek_can_see_Conan;
+consider Conan_can_see_Gotrek;
+consider where_is_Gwaigilion;
+consider I_can_see_Gwaigilion;
+consider Gotrek_can_see_Gwaigilion;
+consider Gwaigilion_can_see_Gotrek;
+consider Gwaigilion_can_see_Conan;
+consider Conan_can_see_Gwaigilion;
+
+
+"I am Gotrek and I always can see myself.";
+
+if (initial value I_can_see_Gotrek == false)
+{
+    impossible;
+}
+
+"Everyone can see himself.";
+
+if (initial value (X:person)_can_see_(X:person) == false)
+{
+    impossible;
+}
+
+"I am Gotrek, so wherever I am Gotrek is as well.";
+
+if (!initial value where_am_I == initial value where_is_Gotrek)
+{
+    impossible;
+}
+
+"I am Gotrek, so whoever Gotrek can see, I can see as well.";
+
+if (!initial value I_can_see_(X:person)==initial value Gotrek_can_see_(X:person))
+{
+    impossible;
+}
+
+"I can see everyone who is in the same place as me.";
+
+if (initial value where_is_(X:person) == initial value where_is_(Y:person) && initial value (X:person)_can_see_(Y:person)==false)
+{
+    impossible;
+}
+
+"I cannot see someone who is elsewhere.";
+
+if (!initial value where_is_(X:person) == initial value where_is_(Y:person) && initial value (X:person)_can_see_(Y:person)==true)
+{
+    impossible;
+}
+
+
+open_databank("readme5.xml");
 generate_cases();

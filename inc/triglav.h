@@ -2025,9 +2025,20 @@ public:
     
     void on_end_of_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r);
     
+    
+    /**
+     * Ask the agent to assume that many variable instances values
+     * and check whether they do not violate the rules.
+     */
     bool get_is_assumed_ok(unsigned r);
     
     void partial_reinitialize(unsigned r);
+    
+    /**
+     * This function is executed by the constructor to calculate
+     * how many of the variable instances are correct.
+     */
+    void calculate_amount_of_checked_variable_instances();
         
     protected:
         
@@ -2092,8 +2103,9 @@ public:
         private:
             std::ofstream output_file_stream;
             unsigned number;
+            int processor_id;
         public:
-            output_file(const std::string & path, const std::string & prefix, unsigned n, const std::string & extension);
+            output_file(const std::string & path, const std::string & prefix, unsigned n, const std::string & extension, int proc_id);
             ~output_file();
             
             std::ofstream & get_stream() { return output_file_stream; }
@@ -2103,10 +2115,10 @@ public:
         std::random_device dev;
         std::mt19937 rng;
         std::uniform_int_distribution<std::mt19937::result_type> dist;
-        
+        int processor_id;
         
     public:                
-        my_output_multifile(const std::string & path, const std::string & prefix, unsigned amount_of_files, const std::string & extension);
+        my_output_multifile(const std::string & path, const std::string & prefix, unsigned amount_of_files, const std::string & extension, int proc_id);
         
         std::ofstream & get_random_output_file_stream();        
     };
@@ -2160,7 +2172,7 @@ private:
     std::map<std::string,std::shared_ptr<value_instance>> map_name_to_value_instance;        
 
     
-    std::vector<std::string> vector_of_validation_items;
+    std::vector<std::pair<std::string, int>> vector_of_validation_items;
 
     bool debug;
     unsigned amount_of_actions;
@@ -2208,6 +2220,9 @@ protected:
      * This function is not used.
      */
     void validate_cases_from_file(const std::string & filename);
+    
+    
+    void generate_cases_for_processor(int processor_id);
     
 public:
     
@@ -2298,7 +2313,11 @@ public:
     
     void clear_validation_items();
     
-    void add_validation_item(const std::string & v);
+    /**
+     * Adds a validation item with the processor id to the list.
+     * The processor id begins with 0.
+     */
+    void add_validation_item(const std::string & v, int processor_id);
     
     void execute();
 
