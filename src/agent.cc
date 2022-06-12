@@ -827,93 +827,6 @@ agent::my_output_multifile::my_output_multifile(const std::string & path, const 
 }
 
 
-agent::my_single_range_iterator_for_variable_instances::my_single_range_iterator_for_variable_instances(const my_iterator_for_estimating_variable_instances & i, const std::string & range):
-    my_iterator_for_variable_instances{i.get_agent(), i.get_depth()},
-    my_range{range}
-{
-    DEBUG("my_single_range_iterator_for_variable_instances::my_single_range_iterator_for_variable_instances");
-    
-    for (unsigned r=amount_of_checked_variable_instances; r<vector_of_variable_instances_names.size();)            
-    {
-        DEBUG("checking for " << r << " (maximum is " << (vector_of_variable_instances_names.size()-1) << ")");
-        auto & x=vector_of_variable_instances_names[r];
-        auto i=map_variable_instances_to_values.find(x);
-                                    
-        unsigned index = map_variable_instances_to_list_of_possible_values.at((*i).first).get_index();        
-        bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);
-        bool has_exactly_one_usual_value = map_variable_instances_to_list_of_possible_values.at((*i).first).get_has_exactly_one_usual_value();            
-        auto my_end = map_variable_instances_to_list_of_possible_values.at((*i).first).get_end(allows_unusual_values);
-            
-        if (!allows_unusual_values && has_exactly_one_usual_value)
-        {
-            (*i).second = map_variable_instances_to_list_of_possible_values.at((*i).first).get_begin(false);
-            
-            DEBUG("for " << x << " it must be " << *(*i).second);
-            
-            r++;
-            amount_of_checked_variable_instances=r;
-            continue;
-        }
-        else
-        if ((*i).second != my_end)
-        {        
-            DEBUG("for " << x << " it isn't finished yet, assume " << (r+1) << " are known");
-                my_agent.assume_only_the_first_n_variable_instance_known(r+1, vector_of_variable_instances_names);
-                if (my_agent.get_the_iterator_is_partially_valid(r+1, *this))
-                {
-                    DEBUG("the iterator is partially valid for " << (r+1));
-                    if (r+1==vector_of_variable_instances_names.size())
-                    {
-                        amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
-                        DEBUG("assign amount_of_checked_variable_instances to " << vector_of_variable_instances_names.size());                                                
-                        return;
-                    }
-                    else
-                    {
-                        DEBUG("we increment r");
-                        r++;
-                        continue;
-                    }
-                }
-                else
-                {
-                    DEBUG("the iterator is not partially valid for " << (r+1));
-                    (*i).second++;
-                    continue;
-                }
-        }
-        else
-        {
-            DEBUG("for " << x << " it is finished");
-            if (r == 0)
-            {
-                amount_of_checked_variable_instances=0;
-                ++my_vector_of_indices;
-                reinitialize();
-                if (my_vector_of_indices.get_finished())
-                {                    
-                    DEBUG("assign amount_of_checked_variable_instances to vector_of_variable_instances_names.size()");
-                    amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
-                    
-                    processed = true;
-                    return;
-                }
-            }
-            else
-            {
-                r--;
-                continue;
-            }
-        }
-    }
-    
-}
-
-void agent::my_single_range_iterator_for_variable_instances::report(std::ostream & s) const
-{
-    my_iterator_for_variable_instances::report(s);    
-}
-
 void agent::generate_cases()
 {
     std::vector<pid_t> vector_of_pids;
@@ -1048,22 +961,6 @@ void agent::validate_cases_from_file(const std::string & filename)
 
     triglav_close_file(c.scanner);
     triglavlex_destroy (c.scanner);    
-}
-
-
-
-agent::my_single_range_iterator_for_variable_instances& agent::my_single_range_iterator_for_variable_instances::operator++()
-{
-    if (get_is_matching(my_range))
-    {
-        this->my_iterator_for_variable_instances::operator++();        
-    }
-    else
-    {
-        this->my_iterator_for_estimating_variable_instances::operator++();
-        reinitialize();
-    }
-    return *this;
 }
 
 

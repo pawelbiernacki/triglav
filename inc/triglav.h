@@ -2079,6 +2079,20 @@ public:
     {
     private:
         const std::string my_range;
+        
+        void init_for_given_amount_of_checked_variable_instances(unsigned &r, 
+                bool allows_unusual_values, 
+                bool has_exactly_one_usual_value, 
+                std::map<std::string, std::list<std::string>::iterator>::iterator & i,
+                const std::string & variable_name, 
+                std::list<std::string>::iterator my_end, bool & continue_flag);
+        
+        void init_for_single_usual_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
+        
+        void init_for_regular_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
+        
+        void init_for_end(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
+
     public:
         my_single_range_iterator_for_variable_instances(const my_iterator_for_estimating_variable_instances & i, const std::string & range);
 
