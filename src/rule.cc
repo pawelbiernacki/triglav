@@ -2,10 +2,16 @@
 #include <sstream>
 using namespace triglav;
 
+//#define TRIGLAV_DEBUG
+
+#ifdef TRIGLAV_DEBUG
+#define DEBUG(X) std::cout << __FILE__ << " " << __LINE__ << ":" << X << "\n"
+#else
+#define DEBUG(X)
+#endif
 
 bool rule::try_to_apply_as_assumption_rule(agent & a, bool & impossible_flag)
 {
-    bool result=false;
     agent::my_iterator_for_rules i{a, *this};
     condition->update_iterator(i);
     implication->update_iterator(i);
@@ -16,17 +22,21 @@ bool rule::try_to_apply_as_assumption_rule(agent & a, bool & impossible_flag)
         {
             if (condition->get_can_be_evaluated_given_assumption(a, i))
             {
+                DEBUG(get_comment() << " can be evaluated given assumption");
+                
                 if (condition->get_evaluate_given_assumption(a, i))
                 {
+                    DEBUG(get_comment() << " is true given assumption");
+                                        
                     implication->execute_given_assumption(a, i, impossible_flag);
-                    result = true;
+                    
                     if (impossible_flag)
                         return true;
                 }
             }
         }
     }    
-    return result;
+    return false;
 }
 
 

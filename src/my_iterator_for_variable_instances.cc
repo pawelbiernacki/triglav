@@ -8,7 +8,7 @@
 #include <cstring>
 
 using namespace triglav;
-#define TRIGLAV_DEBUG
+//#define TRIGLAV_DEBUG
 
 #ifdef TRIGLAV_DEBUG
 #define DEBUG(X) std::cout << __FILE__ << " " << __LINE__ << ":" << X << "\n"

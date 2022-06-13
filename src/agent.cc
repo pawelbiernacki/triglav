@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 using namespace triglav;
-#define TRIGLAV_DEBUG
+//#define TRIGLAV_DEBUG
 
 #ifdef TRIGLAV_DEBUG
 #define DEBUG(X) std::cout << __FILE__ << " " << __LINE__ << ":" << X << "\n"
@@ -786,46 +786,6 @@ void agent::execute()
 }
 
 
-agent::my_output_multifile::output_file::output_file(const std::string & path, const std::string & prefix, unsigned n, const std::string & extension, int proc_id): number{n}, processor_id{proc_id}
-{
-    std::stringstream filename_stream;
-    
-    filename_stream << path << "/" << prefix << processor_id << "_" << number << "." << extension;
-    
-    output_file_stream.open(filename_stream.str(), std::ofstream::out);
-    
-    if (!output_file_stream.good())
-    {
-        throw std::runtime_error("unable to open file cases_<...>.txt");
-    }
-}
-            
-agent::my_output_multifile::output_file::~output_file()
-{
-    output_file_stream.close();
-}
-
-std::ofstream & agent::my_output_multifile::get_random_output_file_stream()
-{
-    unsigned i = dist(rng)-1;
-    
-    return vector_of_output_files[i]->get_stream();
-}
-
-
-agent::my_output_multifile::my_output_multifile(const std::string & path, const std::string & prefix, unsigned amount_of_files, const std::string & extension, int proc_id): 
-    rng{dev()}, dist(1, amount_of_files), processor_id{proc_id}
-{
-    if (amount_of_files == 0)
-    {
-        throw std::runtime_error("amount of output files must not be 0");
-    }
-    for (unsigned i{0}; i<amount_of_files; i++)
-    {
-        vector_of_output_files.push_back(std::make_shared<output_file>(path, prefix, i, extension, processor_id));
-    }
-}
-
 
 void agent::generate_cases()
 {
@@ -880,15 +840,16 @@ void agent::generate_cases_for_processor(int processor_id)
         
         if (std::find_if(vector_of_validation_items.begin(), vector_of_validation_items.end(), [&name, processor_id](auto &i){ return i.first==name && i.second==processor_id;})!=vector_of_validation_items.end())
         {
-            /*
+            
             std::cout << "consider validation range " << s.str() << " ";
             m.report(std::cout);
             std::cout << "\n";
-            */
-
+            
+            
+            
             std::string former, former2;
-            for (my_single_range_iterator_for_variable_instances n(m, name); !n.get_finished(); ++n)
-            {                
+            for (my_single_range_iterator_for_variable_instances n{m, name}; !n.get_finished(); ++n)
+            {                                
                 if (n.get_is_valid())
                 {
                     std::stringstream s;
@@ -907,13 +868,9 @@ void agent::generate_cases_for_processor(int processor_id)
                     former = s.str();
                     
                     n.report(my_multifile->get_random_output_file_stream());
-                    n.report(std::cout);
+                    //n.report(std::cout);
                 }
-                else
-                {
-                    //std::cout << "not valid\n";
-                }
-            }                        
+            } 
         }
     }    
     
@@ -1005,7 +962,7 @@ bool agent::get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_vari
         {
             throw std::runtime_error("failed to assume a value");
         }
-        //DEBUG("got " << (*it).first << " with value " << (*it).second);
+        DEBUG("got " << (*it).first << " with value " << (*it).second);
     }
     
     for (auto & j: list_of_rules)
@@ -1014,12 +971,12 @@ bool agent::get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_vari
         {
             if (impossible)
             {
-                //std::cout << "the rule " << j->get_comment() << " is violated!\n";
+                DEBUG("the rule " << j->get_comment() << " is violated!");
                 return false;
             }
         }
     }    
-    //std::cout << "no rule is violated!\n";    
+    DEBUG("no rule is violated!");    
     
     return true;
 }
@@ -1027,16 +984,6 @@ bool agent::get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_vari
 bool agent::get_is_assumed(const std::string & n) const
 {
     return map_name_to_assumed_flag.find(n)!=map_name_to_assumed_flag.end();
-}
-
-bool agent::my_single_range_iterator_for_variable_instances::get_is_valid() const
-{
-    if (!get_is_matching(my_range) || !this->my_iterator_for_variable_instances::get_is_valid())
-    {
-        return false;
-    }
-    
-    return true;
 }
 
 

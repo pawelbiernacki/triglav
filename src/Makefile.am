@@ -13,7 +13,7 @@ libtriglav_la_SOURCES = scanner.l agent.cc type.cc generic_name_list.cc generic_
 		output_variable_instance.cc hidden_variable_instance.cc set_of_possible_values.cc command_generate_cases.cc command_validate_cases.cc \
 		cases_parser.cc command_save_databank.cc command_open_databank.cc statement_impossible.cc command_estimate_cases.cc command_consider.cc \
 		my_iterator_for_estimating_variable_instances.cc my_iterator_for_variable_instances.cc \
-		my_single_range_iterator_for_variable_instances.cc
+		my_single_range_iterator_for_variable_instances.cc my_output_multifile.cc
 
 triglav_SOURCES = triglav.cc 
 

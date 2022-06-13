@@ -1865,6 +1865,9 @@ public:
     protected:
         agent & my_agent;
 
+        /**
+         * This flag indicates that the iterator has completed its run.
+         */
         bool processed;
 
         /**
@@ -2085,9 +2088,11 @@ public:
                 bool has_exactly_one_usual_value, 
                 std::map<std::string, std::list<std::string>::iterator>::iterator & i,
                 const std::string & variable_name, 
+                std::list<std::string>::iterator my_begin,
                 std::list<std::string>::iterator my_end, bool & continue_flag);
         
-        void init_for_single_usual_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
+        void init_for_single_usual_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name,
+            std::list<std::string>::iterator my_begin, std::list<std::string>::iterator my_end, bool & continue_flag);
         
         void init_for_regular_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
         
