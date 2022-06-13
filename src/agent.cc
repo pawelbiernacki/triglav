@@ -5,6 +5,7 @@
 #include <limits>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <thread>
 
 using namespace triglav;
 //#define TRIGLAV_DEBUG
@@ -788,34 +789,33 @@ void agent::execute()
 
 
 void agent::generate_cases()
-{
+{    
     std::vector<pid_t> vector_of_pids;
-    pid_t p;
+    
     
     for (unsigned i = 1; i < amount_of_processors; i++)
     {
-        p = fork();
+        pid_t p = fork();
+        
         if (p == 0)
         {
-            // child
-            std::cout << "starting child process " << i << "\n";            
             generate_cases_for_processor(i);
-            exit(EXIT_SUCCESS);
+            exit(0);
         }
         else
-        if (p == -1)
+        if (p < 0)
         {
-            std::cerr << "failed to start child process " << i << "\n";
-            exit(EXIT_FAILURE);
+            std::cerr << "failed to fork\n";
         }
         else
         {
             vector_of_pids.push_back(p);
-        }
+        }                
     }
     std::cout << "the processor 0 is starting the operation\n";    
-    generate_cases_for_processor(0);
+    generate_cases_for_processor(0);        
 }
+
 
 void agent::generate_cases_for_processor(int processor_id)
 {    

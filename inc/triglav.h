@@ -2165,7 +2165,8 @@ private:
     
     void assume_only_the_first_n_variable_instance_known(unsigned n, const std::vector<std::string> & v);
     
-    bool get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_variable_instances & i);
+    bool get_the_iterator_is_partially_valid(unsigned n, my_iterator_for_variable_instances & i);            
+    
 
 private:
 
