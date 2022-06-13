@@ -798,9 +798,8 @@ void agent::generate_cases()
         if (p == 0)
         {
             // child
-            std::cout << "starting child process " << i << "\n";
-            // TODO - this should not be outcommented
-            //generate_cases_for_processor(i);
+            std::cout << "starting child process " << i << "\n";            
+            generate_cases_for_processor(i);
             exit(EXIT_SUCCESS);
         }
         else
@@ -814,9 +813,8 @@ void agent::generate_cases()
             vector_of_pids.push_back(p);
         }
     }
-    std::cout << "the processor 0 is starting the operation\n";
-    // TODO - this should not be outcommented!
-    generate_cases_for_processor(1);
+    std::cout << "the processor 0 is starting the operation\n";    
+    generate_cases_for_processor(0);
 }
 
 void agent::generate_cases_for_processor(int processor_id)
@@ -840,35 +838,18 @@ void agent::generate_cases_for_processor(int processor_id)
         
         if (std::find_if(vector_of_validation_items.begin(), vector_of_validation_items.end(), [&name, processor_id](auto &i){ return i.first==name && i.second==processor_id;})!=vector_of_validation_items.end())
         {
-            
+            /*
             std::cout << "consider validation range " << s.str() << " ";
             m.report(std::cout);
             std::cout << "\n";
+            */
             
-            
-            
-            std::string former, former2;
             for (my_single_range_iterator_for_variable_instances n{m, name}; !n.get_finished(); ++n)
             {                                
                 if (n.get_is_valid())
-                {
-                    std::stringstream s;
-                    n.report(s);
-                    if (s.str() == former)
-                    {
-                        n.report(std::cout);
-                        throw std::runtime_error("internal error - the next value equals the former");
-                    }
-                    if (s.str() == former2)
-                    {
-                        n.report(std::cout);
-                        throw std::runtime_error("internal error - the next value equals the former2");
-                    }
-                    former2 = former;
-                    former = s.str();
-                    
+                {                    
                     n.report(my_multifile->get_random_output_file_stream());
-                    //n.report(std::cout);
+                    n.report(std::cout);                    
                 }
             } 
         }

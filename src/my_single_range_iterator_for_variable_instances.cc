@@ -21,7 +21,7 @@ void agent::my_single_range_iterator_for_variable_instances::init_for_single_usu
     DEBUG("for " << variable_name << " it must be " << *(*i).second);
     
     my_agent.assume_only_the_first_n_variable_instance_known(r+1, vector_of_variable_instances_names);
-    
+        
     if (my_agent.get_the_iterator_is_partially_valid(r+1, *this))
     {
         DEBUG("the iterator is partially valid for " << (r+1));
@@ -37,37 +37,17 @@ void agent::my_single_range_iterator_for_variable_instances::init_for_single_usu
             DEBUG("we increment r");
             r++;
                         
-            auto & variable_name2=vector_of_variable_instances_names[r];
-            auto i2=map_variable_instances_to_values.find(variable_name2);
-                                    
-            unsigned index = map_variable_instances_to_list_of_possible_values.at((*i2).first).get_index();        
-            bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);        
-            auto my_begin = map_variable_instances_to_list_of_possible_values.at((*i2).first).get_begin(allows_unusual_values);            
-        
-            (*i2).second = my_begin;
             continue_flag = true;
         }
     }
     else
     {
-        (*i).second=my_end;
         if (r == 0)
         {
+            DEBUG("r is zero!");
             amount_of_checked_variable_instances=0;
-            ++my_vector_of_indices;
-            reinitialize();
-            if (my_vector_of_indices.get_finished())
-            {                    
-                DEBUG("assign amount_of_checked_variable_instances to vector_of_variable_instances_names.size()");
-                amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
-                    
-                processed = true;
-                continue_flag = false;
-            }
-            else
-            {
-                continue_flag = true;
-            }
+            processed = true;
+            continue_flag = false;
         }
         else
         {
@@ -93,20 +73,13 @@ void agent::my_single_range_iterator_for_variable_instances::init_for_regular_va
             amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
             DEBUG("assign amount_of_checked_variable_instances to " << vector_of_variable_instances_names.size());                                                
             continue_flag = false;            
+            processed = true;
             r++;
         }
         else
         {
             DEBUG("we increment r");
             r++;
-            auto & variable_name2=vector_of_variable_instances_names[r];
-            auto i2=map_variable_instances_to_values.find(variable_name2);
-                                    
-            unsigned index = map_variable_instances_to_list_of_possible_values.at((*i2).first).get_index();        
-            bool allows_unusual_values = my_vector_of_indices.get_allows_unusual_values_at(index);        
-            auto my_begin = map_variable_instances_to_list_of_possible_values.at((*i2).first).get_begin(allows_unusual_values);            
-        
-            (*i2).second = my_begin;
             continue_flag = true;
         }
     }
@@ -125,24 +98,13 @@ void agent::my_single_range_iterator_for_variable_instances::init_for_end(unsign
     DEBUG("for " << variable_name << " it is finished");
     if (r == 0)
     {
-        amount_of_checked_variable_instances=0;
-        ++my_vector_of_indices;
-        reinitialize();
-        if (my_vector_of_indices.get_finished())
-        {                    
-            DEBUG("assign amount_of_checked_variable_instances to vector_of_variable_instances_names.size()");
-                    amount_of_checked_variable_instances = vector_of_variable_instances_names.size();
-                    
-            processed = true;
-            continue_flag = false;
-        }
-        else
-        {
-            continue_flag = true;
-        }
+        DEBUG("r is zero!");
+        processed = true;
+        continue_flag = false;
     }
     else
     {        
+        DEBUG("decrement r");
         r--;
         continue_flag = true;
     }
@@ -176,11 +138,16 @@ agent::my_single_range_iterator_for_variable_instances::my_single_range_iterator
     my_iterator_for_variable_instances{j.get_agent(), j.get_depth()},
     my_range{range}
 {
-    DEBUG("my_single_range_iterator_for_variable_instances::my_single_range_iterator_for_variable_instances");
+    DEBUG("my_single_range_iterator_for_variable_instances::my_single_range_iterator_for_variable_instances for range " << my_range);
     
-    bool continue_flag = false;
+    while (!get_is_matching(range) && !get_finished())
+    {
+        this->my_iterator_for_estimating_variable_instances::operator++();
+    }
     
-    for (unsigned r=amount_of_checked_variable_instances; r<vector_of_variable_instances_names.size();)            
+    bool continue_flag;
+    
+    for (unsigned r=amount_of_checked_variable_instances; (r<vector_of_variable_instances_names.size()) && !processed;)            
     {
         DEBUG("checking for " << r << " (maximum is " << (vector_of_variable_instances_names.size()-1) << ")");
         auto & variable_name=vector_of_variable_instances_names[r];
@@ -197,7 +164,7 @@ agent::my_single_range_iterator_for_variable_instances::my_single_range_iterator
                  
         init_for_given_amount_of_checked_variable_instances(r, allows_unusual_values, has_exactly_one_usual_value, i, variable_name, my_begin, my_end, continue_flag);
         
-        //std::cin.get();        
+        DEBUG("r=" << r);
         
         if (continue_flag)
             continue;
@@ -205,7 +172,7 @@ agent::my_single_range_iterator_for_variable_instances::my_single_range_iterator
             break;
     }
         
-    DEBUG("my_single_range_iterator_for_variable_instances is ready");
+    DEBUG("my_single_range_iterator_for_variable_instances is ready");    
 }
 
 void agent::my_single_range_iterator_for_variable_instances::report(std::ostream & s) const
@@ -223,8 +190,7 @@ agent::my_single_range_iterator_for_variable_instances& agent::my_single_range_i
     }
     else
     {
-        this->my_iterator_for_estimating_variable_instances::operator++();
-        reinitialize();
+        processed = true;
     }
     return *this;
 }
@@ -234,6 +200,8 @@ bool agent::my_single_range_iterator_for_variable_instances::get_is_valid() cons
 {
     if (!get_is_matching(my_range) || !this->my_iterator_for_variable_instances::get_is_valid())
     {
+        DEBUG("get_is_matching(" << my_range << ")=" << get_is_matching(my_range));
+        DEBUG("this->my_iterator_for_variable_instances::get_is_valid()=" << this->my_iterator_for_variable_instances::get_is_valid());
         return false;
     }
     
