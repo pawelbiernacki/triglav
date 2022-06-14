@@ -111,5 +111,5 @@ if (!initial value (X:person)_can_see_(Y:person)==initial value (Y:person)_can_s
 
 
 
-open_databank("readme5.xml");
+open_databank("readme6.xml");
 generate_cases();

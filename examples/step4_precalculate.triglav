@@ -110,6 +110,6 @@ if (!initial value (X:person)_can_see_(Y:person)==initial value (Y:person)_can_s
 }
 
 
-open_databank("readme6.xml");
+open_databank("readme7.xml");
 precalculate();
-save_databank("readme7.xml");
+save_databank("readme8.xml");

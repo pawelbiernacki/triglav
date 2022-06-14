@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <triglav:databank xmlns:triglav="https://www.perkun.org/triglav/0.0.0">
     <!--Metadata about this document-->
-    <triglav:meta version="0.0.0" date="2022-05-17" audience="all">
+    <triglav:meta version="0.0.0" date="2022-06-15" audience="all">
         <triglav:authors>
             <triglav:author name="Your Name" email="your@email.com" website="https://your.website" type="human">
             </triglav:author>
@@ -3667,7 +3667,7 @@
                 </triglav:variable_instances>
             </triglav:derived>
         </triglav:specification>
-        <triglav:case_files amount="1" prefix="cases_" extension="txt" path=".">
+        <triglav:case_files amount="0" prefix="" extension="txt" path=".">
         </triglav:case_files>
         <triglav:generator max_amount_of_unusual_values="1">
         </triglav:generator>

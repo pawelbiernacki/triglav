@@ -1,6 +1,6 @@
 <triglav:databank xmlns:triglav="https://www.perkun.org/triglav/0.0.0">
     
-    <triglav:meta audience="all" date="2022-05-17" version="0.0.0">
+    <triglav:meta audience="all" date="2022-06-15" version="0.0.0">
         <triglav:authors >
             <triglav:author email="your@email.com" name="Your Name" type="human" website="https://your.website">
             </triglav:author>
@@ -3666,7 +3666,7 @@
                 </triglav:variable_instances>
             </triglav:derived>
         </triglav:specification>
-        <triglav:case_files amount="4" extension="txt" path="." prefix="cases_">
+        <triglav:case_files amount="4" extension="txt" path="." prefix="">
 
         </triglav:case_files>
         <triglav:generator max_amount_of_unusual_values="1">

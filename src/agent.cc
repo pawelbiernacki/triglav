@@ -31,7 +31,7 @@ agent::agent():
         max_amount_of_unusual_cases{1}, 
         amount_of_case_files{0},
         case_files_prefix{""},
-        case_files_extension{".txt"},
+        case_files_extension{"txt"},
         case_files_path{"."}
         {}
 
