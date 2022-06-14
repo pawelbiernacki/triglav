@@ -2352,9 +2352,19 @@ public:
         max_amount_of_unusual_cases = m;
     }
     
+    unsigned get_max_amount_of_unusual_cases() const
+    {
+        return max_amount_of_unusual_cases;
+    }
+    
     void set_amount_of_processors(unsigned a)
     {
         amount_of_processors = a;
+    }
+    
+    unsigned get_amount_of_processors() const
+    {
+        return amount_of_processors;
     }
     
     bool get_debug() const {

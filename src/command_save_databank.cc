@@ -252,11 +252,15 @@ void command_save_databank::execute(agent & a) const
     w.end_element(); // case files
         
     w.start_element("triglav:generator");
-    w.write_attribute("max_amount_of_unusual_values", "1");
+    std::stringstream max_amount_of_unusual_cases_stream;
+    max_amount_of_unusual_cases_stream << a.get_max_amount_of_unusual_cases();
+    w.write_attribute("max_amount_of_unusual_values", max_amount_of_unusual_cases_stream.str());
     w.end_element(); // generator
     
     w.start_element("triglav:machine");
-    w.write_attribute("amount_of_processors", "1"); 
+    std::stringstream amount_of_processors_stream;
+    amount_of_processors_stream << a.get_amount_of_processors();    
+    w.write_attribute("amount_of_processors", amount_of_processors_stream.str()); 
     w.end_element();        
     
     w.start_element("triglav:validation_range");

@@ -3745,7 +3745,7 @@
         </triglav:case_files>
         <triglav:generator max_amount_of_unusual_values="1">
         </triglav:generator>
-        <triglav:machine amount_of_processors="1">
+        <triglav:machine amount_of_processors="2">
         </triglav:machine>
         <triglav:validation_range>
         </triglav:validation_range>
