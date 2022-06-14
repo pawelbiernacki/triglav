@@ -12,4 +12,13 @@ readme5.xml:
 	triglav_databank_set_validation_range.pl readme2.xml estimated_cases.txt 0 3 > readme3.xml; \
 	triglav_databank_set_amount_of_case_files.pl readme3.xml 4 > readme4.xml; \
 	triglav_databank_distribute_workload.pl readme4.xml > readme5.xml
+	
+readme6.xml: readme5.xml
+	triglav step3_generate_cases.triglav;	\
+	triglav_databank_set_precalculated_files.pl readme5.xml "precalculated_" 1 > readme6.xml
+	
+readme7.xml: readme6.xml
+	triglav step4_precalculate.triglav
+	
+
 

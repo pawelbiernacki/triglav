@@ -17,6 +17,12 @@ using namespace triglav;
 #endif
 
 
+extern "C" void triglav_open_file(void * scanner, const char * f);
+extern "C" void triglav_close_file(void * scanner);
+extern "C" void triglavlex_init(void **);
+extern "C" void triglavlex_destroy(void *);
+
+
 agent::agent(): 
         debug{false}, 
         amount_of_actions{0}, 
@@ -424,18 +430,19 @@ void agent::estimate_cases()
     }    
 }
 
-void agent::validate_cases()
+void agent::precalculate()
 {
     std::vector<pid_t> vector_of_pids;
     pid_t p;
     
-    for (unsigned i = 1; i <= amount_of_processors; i++)
+    for (unsigned i = 1; i < amount_of_processors; i++)
     {
         p = fork();
         if (p == 0)
         {
             // child
             std::cout << "starting child process " << i << "\n";
+            precalculate_for_processor(i);
             exit(EXIT_SUCCESS);
         }
         else
@@ -449,7 +456,11 @@ void agent::validate_cases()
             vector_of_pids.push_back(p);
         }
     }
+        
+    precalculate_for_processor(0);
 }
+
+
 
 void agent::internal_expand_for_variables()
 {
@@ -817,6 +828,64 @@ void agent::generate_cases()
 }
 
 
+void agent::precalculate_for_processor(int processor_id)
+{
+    std::vector<std::string> vector_of_case_file_names;
+    
+    std::sort(vector_of_precalculated_files.begin(), vector_of_precalculated_files.end(), [](auto &a, auto & b){ return a->get_depth()<b->get_depth(); });
+    
+    std::cout << "precalculate for processor " << processor_id << "\n";
+    
+    for (auto & a: vector_of_precalculated_files)
+    {
+        if (a->get_done())
+        {
+            std::cout << "processor " << processor_id << ", depth " << a->get_depth() << " has already been done\n";
+        }
+        else
+        {
+            if (a->get_depth()==1)
+            {
+                std::cout << "processor " << processor_id << " precalculating for depth=1\n";
+                
+                for (int n=0; n<amount_of_case_files; n++)
+                {
+                    std::stringstream case_file_name_stream;
+                    case_file_name_stream << case_files_path << "/" << case_files_prefix << processor_id << "_" << n << "." << case_files_extension;
+                    
+                    vector_of_case_file_names.push_back(case_file_name_stream.str());                    
+                }
+                
+                for (auto & case_file_name: vector_of_case_file_names)
+                {
+                    class_with_scanner c;
+                    c.agent_ptr = this;
+
+                    triglavlex_init ( &c.scanner );
+                    
+                    std::cout << "processor " << processor_id << " precalculating case file " << case_file_name << "\n";
+                    
+                    triglav_open_file(c.scanner, case_file_name.c_str());
+
+                    cases_parser p(c.scanner,*this, &std::cerr);
+                    int i = p.parse();
+
+                    if (i != 0)
+                        std::cout << "error" << "\n";
+
+                    triglav_close_file(c.scanner);
+                    triglavlex_destroy(c.scanner);
+                }                
+            }
+            else
+            {
+                std::cout << "processor " << processor_id << " precalculating for depth=" << depth << "\n";
+            }
+        }
+    }
+}
+
+
 void agent::generate_cases_for_processor(int processor_id)
 {    
     /*
@@ -858,10 +927,6 @@ void agent::generate_cases_for_processor(int processor_id)
     my_multifile = nullptr;
 }
 
-extern "C" void triglav_open_file(void * scanner, const char * f);
-extern "C" void triglav_close_file(void * scanner);
-extern "C" void triglavlex_init(void **);
-extern "C" void triglavlex_destroy(void *);
 
 int agent::parse(const char * filename)
 {
@@ -880,25 +945,6 @@ int agent::parse(const char * filename)
     triglavlex_destroy (c.scanner);
 
     return i;
-}
-
-
-void agent::validate_cases_from_file(const std::string & filename)
-{
-    class_with_scanner c;
-    c.agent_ptr = this;
-
-    triglavlex_init ( &c.scanner );
-    triglav_open_file(c.scanner, filename.c_str());
-
-    cases_parser p(c.scanner,*this, &std::cerr);
-    int i = p.parse();
-
-    if (i != 0)
-        std::cout << "error" << "\n";
-
-    triglav_close_file(c.scanner);
-    triglavlex_destroy (c.scanner);    
 }
 
 

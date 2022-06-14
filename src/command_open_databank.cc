@@ -211,7 +211,45 @@ void databank_xml_parser::parse_data(my_xml_document_databank::iterator & data)
                         my_string value{k, a};
                         my_agent.set_case_files_path(*value);
                     }                        
-                }                
+                }
+                
+                for (my_xml_document_databank::iterator l{(*k)->children}; l; ++l)
+                {
+                    if ((*l)->type == XML_ELEMENT_NODE)
+                    {
+                        std::string x2{(const char *)(*l)->name};
+                        if (x2 == "precalculated_files")
+                        {                            
+                            unsigned depth=0;
+                            bool done=false;
+                            std::string prefix="";
+                            
+                            for (my_xml_document_databank::attribute_iterator a{l}; a; ++a)
+                            {                            
+                                if (std::string((const char *)(*a)->name) == "depth")
+                                {
+                                    my_string value{l, a};
+                                    std::stringstream s{*value};
+                                    s >> depth;
+                                }
+                                else 
+                                if (std::string((const char *)(*a)->name) == "prefix")
+                                {           
+                                    my_string value{k, a};
+                                    prefix = *value;
+                                }
+                                else 
+                                if (std::string((const char *)(*a)->name) == "done")
+                                {           
+                                    my_string value{k, a};
+                                    done = ((*value) == "true");
+                                }
+                            }                            
+                            my_agent.get_vector_of_precalculated_files().push_back(std::make_unique<triglav::precalculated_files>(depth, prefix, done));
+                        }
+                    }
+                }
+                
             }
             else
             if (x == "generator")

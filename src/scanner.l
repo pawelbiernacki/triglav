@@ -80,12 +80,12 @@ IDENTIFIER		{LETTER}({LETTER_OR_DIGIT})*
 "there_is_a_chance"     { return T_THERE_IS_A_CHANCE; }
 "usually"               { return T_USUALLY; }
 "generate_cases"        { return T_GENERATE_CASES; }
-"validate_cases"        { return T_VALIDATE_CASES; }
 "save_databank"         { return T_SAVE_DATABANK; }
 "open_databank"         { return T_OPEN_DATABANK; }
 "impossible"            { return T_IMPOSSIBLE; }
 "estimate_cases"        { return T_ESTIMATE_CASES; }
 "consider"              { return T_CONSIDER; }
+"precalculate"          { return T_PRECALCULATE; }
 
 {IDENTIFIER}  			{ yylval_param->value_string = strdup(yytext); return T_IDENTIFIER; }
 

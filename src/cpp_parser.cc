@@ -37,12 +37,12 @@ const cpp_parser::token_and_name cpp_parser::array_of_tokens_and_names[] = {
     { T_THERE_IS_A_CHANCE, "T_THERE_IS_A_CHANCE" },
     { T_USUALLY, "T_USUALLY" },
     { T_GENERATE_CASES, "T_GENERATE_CASES" },
-    { T_VALIDATE_CASES, "T_VALIDATE_CASES" },
     { T_SAVE_DATABANK, "T_SAVE_DATABANK" },
     { T_OPEN_DATABANK, "T_OPEN_DATABANK" },
     { T_IMPOSSIBLE, "T_IMPOSSIBLE" },
     { T_ESTIMATE_CASES, "T_ESTIMATE_CASES" },
     { T_CONSIDER, "T_CONSIDER" },
+    { T_PRECALCULATE, "T_PRECALCULATE" },
     { T_IDENTIFIER, "T_IDENTIFIER" },
     { T_FLOAT_LITERAL, "T_FLOAT_LITERAL" },
     { T_INT_LITERAL, "T_INT_LITERAL" },
@@ -996,37 +996,6 @@ int cpp_parser::parse_save_databank()
 }
 
 
-int cpp_parser::parse_validate_cases()
-{
-    int i;
-    i = lex();
-    if (i != T_VALIDATE_CASES)
-    {
-        PARSING_ERROR(i, "validate_cases");
-        return -1;
-    }
-    i = lex();
-    if (i != '(')
-    {
-        PARSING_ERROR(i, "(");
-        return -1;
-    }
-    my_agent.add_command(std::make_shared<command_validate_cases>());
-    
-    i = lex();
-    if (i != ')')
-    {
-        PARSING_ERROR(i, ")");
-        return -1;
-    }
-    i = lex();
-    if (i != ';')
-    {
-        PARSING_ERROR(i, ";");
-        return -1;
-    }
-    return 0;
-}
 
 
 int cpp_parser::parse_estimate_cases()
@@ -1134,6 +1103,41 @@ int cpp_parser::parse_consider()
 }
 
 
+int cpp_parser::parse_precalculate()
+{
+    int i;
+    i = lex();
+    if (i != T_PRECALCULATE)
+    {
+        PARSING_ERROR(i, "precalculate");
+        return -1;
+    }
+    i = lex();
+    if (i != '(')
+    {
+        PARSING_ERROR(i, "(");
+        return -1;
+    }
+    
+    my_agent.add_command(std::make_shared<command_precalculate>());
+    
+    i = lex();
+    if (i != ')')
+    {
+        PARSING_ERROR(i, ")");
+        return -1;
+    }
+    i = lex();
+    if (i != ';')
+    {
+        PARSING_ERROR(i, ";");
+        return -1;
+    }
+    return 0;
+}
+
+
+
 int cpp_parser::parse_report()
 {
     int i;
@@ -1209,11 +1213,6 @@ int cpp_parser::parse()
             if (parse_generate_cases())
                 return -1;
             break;
-        case T_VALIDATE_CASES:
-            unlex(i);
-            if (parse_validate_cases())
-                return -1;
-            break;
         case T_ESTIMATE_CASES:
             unlex(i);
             if (parse_estimate_cases())
@@ -1243,6 +1242,12 @@ int cpp_parser::parse()
         case T_CONSIDER:
             unlex(i);
             if (parse_consider())
+                return -1;
+            break;
+            
+        case T_PRECALCULATE:
+            unlex(i);
+            if (parse_precalculate())
                 return -1;
             break;
 

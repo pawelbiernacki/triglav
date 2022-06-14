@@ -149,14 +149,14 @@ am_libtriglav_la_OBJECTS = scanner.lo agent.lo type.lo \
 	output_variable.lo hidden_variable.lo \
 	input_variable_instance.lo output_variable_instance.lo \
 	hidden_variable_instance.lo set_of_possible_values.lo \
-	command_generate_cases.lo command_validate_cases.lo \
-	cases_parser.lo command_save_databank.lo \
-	command_open_databank.lo statement_impossible.lo \
-	command_estimate_cases.lo command_consider.lo \
+	command_generate_cases.lo cases_parser.lo \
+	command_save_databank.lo command_open_databank.lo \
+	statement_impossible.lo command_estimate_cases.lo \
+	command_consider.lo \
 	my_iterator_for_estimating_variable_instances.lo \
 	my_iterator_for_variable_instances.lo \
 	my_single_range_iterator_for_variable_instances.lo \
-	my_output_multifile.lo
+	my_output_multifile.lo command_precalculate.lo
 libtriglav_la_OBJECTS = $(am_libtriglav_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -187,9 +187,9 @@ am__depfiles_remade = ./$(DEPDIR)/agent.Plo ./$(DEPDIR)/belief.Plo \
 	./$(DEPDIR)/command_generate_cases.Plo \
 	./$(DEPDIR)/command_loop.Plo \
 	./$(DEPDIR)/command_open_databank.Plo \
+	./$(DEPDIR)/command_precalculate.Plo \
 	./$(DEPDIR)/command_report.Plo \
 	./$(DEPDIR)/command_save_databank.Plo \
-	./$(DEPDIR)/command_validate_cases.Plo \
 	./$(DEPDIR)/cpp_parser.Plo ./$(DEPDIR)/expression_value.Plo \
 	./$(DEPDIR)/expression_variable_initial_value.Plo \
 	./$(DEPDIR)/expression_variable_terminal_value.Plo \
@@ -611,10 +611,10 @@ libtriglav_la_SOURCES = scanner.l agent.cc type.cc generic_name_list.cc generic_
 		expression_value.cc rule.cc belief.cc my_iterator.cc statement_assert_is_true.cc statement_illegal.cc input.cc statement_assert_is_false.cc \
 		logical_expression_equality.cc cpp_parser.cc command_expand.cc command_loop.cc command_report.cc output.cc logical_expression_and.cc \
 		statement_add_payoff.cc statement_there_is_a_chance.cc input_variable.cc output_variable.cc hidden_variable.cc input_variable_instance.cc \
-		output_variable_instance.cc hidden_variable_instance.cc set_of_possible_values.cc command_generate_cases.cc command_validate_cases.cc \
+		output_variable_instance.cc hidden_variable_instance.cc set_of_possible_values.cc command_generate_cases.cc \
 		cases_parser.cc command_save_databank.cc command_open_databank.cc statement_impossible.cc command_estimate_cases.cc command_consider.cc \
 		my_iterator_for_estimating_variable_instances.cc my_iterator_for_variable_instances.cc \
-		my_single_range_iterator_for_variable_instances.cc my_output_multifile.cc
+		my_single_range_iterator_for_variable_instances.cc my_output_multifile.cc command_precalculate.cc
 
 triglav_SOURCES = triglav.cc 
 triglav_LDADD = libtriglav.la @XML_LIBS@
@@ -761,9 +761,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_generate_cases.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_loop.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_open_databank.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_precalculate.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_report.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_save_databank.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command_validate_cases.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpp_parser.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/expression_value.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/expression_variable_initial_value.Plo@am__quote@ # am--include-marker
@@ -1201,9 +1201,9 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/command_generate_cases.Plo
 	-rm -f ./$(DEPDIR)/command_loop.Plo
 	-rm -f ./$(DEPDIR)/command_open_databank.Plo
+	-rm -f ./$(DEPDIR)/command_precalculate.Plo
 	-rm -f ./$(DEPDIR)/command_report.Plo
 	-rm -f ./$(DEPDIR)/command_save_databank.Plo
-	-rm -f ./$(DEPDIR)/command_validate_cases.Plo
 	-rm -f ./$(DEPDIR)/cpp_parser.Plo
 	-rm -f ./$(DEPDIR)/expression_value.Plo
 	-rm -f ./$(DEPDIR)/expression_variable_initial_value.Plo
@@ -1295,9 +1295,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/command_generate_cases.Plo
 	-rm -f ./$(DEPDIR)/command_loop.Plo
 	-rm -f ./$(DEPDIR)/command_open_databank.Plo
+	-rm -f ./$(DEPDIR)/command_precalculate.Plo
 	-rm -f ./$(DEPDIR)/command_report.Plo
 	-rm -f ./$(DEPDIR)/command_save_databank.Plo
-	-rm -f ./$(DEPDIR)/command_validate_cases.Plo
 	-rm -f ./$(DEPDIR)/cpp_parser.Plo
 	-rm -f ./$(DEPDIR)/expression_value.Plo
 	-rm -f ./$(DEPDIR)/expression_variable_initial_value.Plo

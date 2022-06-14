@@ -38,6 +38,7 @@ const std::string cases_parser::get_token_name(int t)
 
 int cases_parser::parse()
 {
+        
     int i;
     do
     {
@@ -94,6 +95,10 @@ int cases_parser::parse()
         {
             continue;
         }
+        
+        std::vector<std::pair<std::string, std::string>> vector_of_pairs_variable_name_value_name;
+        
+        
         do
         {
             if (i != T_IDENTIFIER)
@@ -118,7 +123,9 @@ int cases_parser::parse()
             std::string value_instance_name(yylval.value_string);
             free(yylval.value_string);
             
-            std::cout << variable_instance_name << "=>" << value_instance_name << "\n";
+            // std::cout << variable_instance_name << "=>" << value_instance_name << "\n";
+            
+            vector_of_pairs_variable_name_value_name.push_back(std::pair(variable_instance_name, value_instance_name));
                                 
             i = lex();
             if (i == ',')
@@ -133,6 +140,18 @@ int cases_parser::parse()
             }
         }
         while (true);
+        
+        bool first = true;
+        
+        std::cout << "{";
+        for (auto & p: vector_of_pairs_variable_name_value_name)
+        {
+            if (!first) std::cout << ",";
+            std::cout << p.first << "=>" << p.second;
+            first = false;
+        }
+        std::cout << "}\n";
+        
     }
     while (i);
     

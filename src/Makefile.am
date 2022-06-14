@@ -10,10 +10,10 @@ libtriglav_la_SOURCES = scanner.l agent.cc type.cc generic_name_list.cc generic_
 		expression_value.cc rule.cc belief.cc my_iterator.cc statement_assert_is_true.cc statement_illegal.cc input.cc statement_assert_is_false.cc \
 		logical_expression_equality.cc cpp_parser.cc command_expand.cc command_loop.cc command_report.cc output.cc logical_expression_and.cc \
 		statement_add_payoff.cc statement_there_is_a_chance.cc input_variable.cc output_variable.cc hidden_variable.cc input_variable_instance.cc \
-		output_variable_instance.cc hidden_variable_instance.cc set_of_possible_values.cc command_generate_cases.cc command_validate_cases.cc \
+		output_variable_instance.cc hidden_variable_instance.cc set_of_possible_values.cc command_generate_cases.cc \
 		cases_parser.cc command_save_databank.cc command_open_databank.cc statement_impossible.cc command_estimate_cases.cc command_consider.cc \
 		my_iterator_for_estimating_variable_instances.cc my_iterator_for_variable_instances.cc \
-		my_single_range_iterator_for_variable_instances.cc my_output_multifile.cc
+		my_single_range_iterator_for_variable_instances.cc my_output_multifile.cc command_precalculate.cc
 
 triglav_SOURCES = triglav.cc 
 

@@ -3666,8 +3666,8 @@
                 </triglav:variable_instances>
             </triglav:derived>
         </triglav:specification>
-        <triglav:case_files amount="4" extension="txt" path="." prefix="cases_">            
-        </triglav:case_files>
+        <triglav:case_files amount="4" extension="txt" path="." prefix="cases_"><triglav:precalculated_files prefix="precalculated_" depth="1" done="false"/>
+</triglav:case_files>
         <triglav:generator max_amount_of_unusual_values="1">
         </triglav:generator>
         <triglav:machine amount_of_processors="2">

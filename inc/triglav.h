@@ -1511,6 +1511,14 @@ public:
     virtual void set_rank(int r) {}
 };
 
+
+class command_precalculate: public command
+{
+public:
+    command_precalculate() {}
+    virtual void execute(agent & a) const override;
+};
+
 class command_consider: public command
 {
 private:
@@ -1562,12 +1570,6 @@ class command_generate_cases: public command
 private:        
 public:
     command_generate_cases() {}
-    virtual void execute(agent & a) const override;
-};
-
-class command_validate_cases: public command
-{
-public:
     virtual void execute(agent & a) const override;
 };
 
@@ -1806,6 +1808,31 @@ public:
 };
 
 template <> constexpr const bool is_reportable<rule> {true};
+
+/**
+ * This class is instantiated by the XML parser when opening a databank.
+ * It represents a family of precalculated files for all processors.
+ */
+class precalculated_files
+{
+private:
+    bool done;
+    std::string prefix;
+    unsigned depth;
+public:
+    precalculated_files(unsigned ndepth, const std::string & nprefix, bool ndone):
+        done{ndone},
+        prefix{nprefix},
+        depth{ndepth}
+    {
+    }
+    
+    virtual ~precalculated_files() {}
+    
+    bool get_done() const { return done; }
+    const std::string & get_prefix() const { return prefix; }
+    unsigned get_depth() const { return depth; }
+};
 
 
 /**
@@ -2206,6 +2233,7 @@ private:
     std::list<std::shared_ptr<rule>> list_of_rules;
     std::list<std::shared_ptr<value_instance>> list_of_value_instances;
     std::list<std::shared_ptr<command>> list_of_commands;
+    std::vector<std::unique_ptr<precalculated_files>> vector_of_precalculated_files;
 
     std::shared_ptr<belief> current_belief;
 
@@ -2254,14 +2282,8 @@ protected:
     virtual void get_input(input & i);
 
     int parse_error_to_stderr(class_with_scanner * data);
-    
-    
-    /**
-     * !!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * This function is not used.
-     */
-    void validate_cases_from_file(const std::string & filename);
-    
+        
+    void precalculate_for_processor(int processor_id);
     
     void generate_cases_for_processor(int processor_id);
     
@@ -2302,6 +2324,28 @@ public:
     {
         case_files_path = p;
     }
+    
+    
+    unsigned get_amount_of_case_files() const
+    {
+        return amount_of_case_files;
+    }
+    
+    const std::string & get_case_files_prefix() const
+    {
+        return case_files_prefix;
+    }
+    
+    const std::string & get_case_files_extension() const
+    {
+        return case_files_extension;
+    }
+    
+    const std::string & get_case_files_path() const
+    {
+        return case_files_path;
+    }
+    
     
     void set_max_amount_of_unusual_cases(unsigned m)
     {
@@ -2348,7 +2392,7 @@ public:
     
     void generate_cases();
     
-    void validate_cases();
+    void precalculate();
 
     void estimate_cases();
     
@@ -2373,7 +2417,10 @@ public:
     }
     std::list<std::shared_ptr<type>> & get_list_of_types() {
         return list_of_types;
-    }    
+    }        
+    std::vector<std::unique_ptr<precalculated_files>> & get_vector_of_precalculated_files() {
+        return vector_of_precalculated_files;
+    }
     
     std::map<std::string,std::shared_ptr<variable_instance>> & get_map_name_to_variable_instance() {
         return map_name_to_variable_instance;
@@ -2462,9 +2509,9 @@ private:
     int parse_loop();
     int parse_report();
     int parse_generate_cases();
-    int parse_validate_cases();
     int parse_estimate_cases();
     int parse_consider();
+    int parse_precalculate();
     int parse_save_databank();
     int parse_open_databank();
 public:

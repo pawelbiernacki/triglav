@@ -227,11 +227,28 @@ void command_save_databank::execute(agent & a) const
     
     w.start_element("triglav:case_files");
         
-    w.write_attribute("amount", "1");   // this amount should be replaced by something larger than the amount of processors, possibly a multiple of it
-    w.write_attribute("prefix", "cases_");
-    w.write_attribute("extension", "txt");
-    w.write_attribute("path", ".");
     
+    std::stringstream amount_of_case_files_stream;
+    
+    amount_of_case_files_stream << a.get_amount_of_case_files();
+    
+    w.write_attribute("amount", amount_of_case_files_stream.str());   
+    w.write_attribute("prefix", a.get_case_files_prefix());
+    w.write_attribute("extension", a.get_case_files_extension());
+    w.write_attribute("path", a.get_case_files_path());
+    
+    for (auto & i: a.get_vector_of_precalculated_files())
+    {
+        w.start_element("triglav:precalculated_files");
+        
+        std::stringstream depth_stream;
+        depth_stream << i->get_depth();
+        
+        w.write_attribute("depth", depth_stream.str());
+        w.write_attribute("prefix", i->get_prefix());
+        w.write_attribute("done", i->get_done() ? "true" : "false");
+        w.end_element();
+    }
     w.end_element(); // case files
         
     w.start_element("triglav:generator");
