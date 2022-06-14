@@ -1,0 +1,115 @@
+#!triglav
+
+#
+# 
+type boolean={false,true},
+    place={Krakow,Warszawa,Wroclaw,Poznan,Gdansk},
+    person={Conan, Gotrek, Gwaigilion},
+    
+    action={doing_nothing, 
+            going_to_(X:place),
+            telling_(Y:person)_(X:information),
+            asking_(X:person)_to_do_(Y:action),
+            asking_(X:person)_whether_(Y:information),
+            attacking_(X:person)},
+    
+    information={(X:person)_is_in_(Y:place),
+                (X:person)_is_(Y:action),
+                (X:person)_thinks_(Y:information),
+                (X:person)_has_told_(Y:person)_(Z:information),
+                (X:person)_has_attacked_(Y:person)};
+    
+input variable where_am_I:place,
+    I_have_won_a_fight:boolean usually {false},
+    I_can_see_(X:person):boolean,
+    (X:person)_is_telling_me_(Y:information):boolean usually {false},
+    (X:person)_is_attacking_me:boolean usually {false};
+    
+output variable I_do:action;
+hidden variable where_is_(X:person):place,
+                (X:person)_can_see_(Y:person):boolean,
+                (X:person)_has_told_(Y:person)_(Z:information):boolean usually {false},
+                (X:person)_has_attacked_(Y:person):boolean usually {false},
+                (X:person)_thinks_(Y:information):boolean usually {false};
+                
+expand(2);
+
+consider I_can_see_Gotrek; # always true
+consider Gotrek_can_see_Gotrek; # always true
+consider Conan_can_see_Conan;   # always true
+consider Gwaigilion_can_see_Gwaigilion; # always true
+consider where_am_I;
+consider where_is_Gotrek;
+consider where_is_Conan;
+consider I_can_see_Conan;
+consider Gotrek_can_see_Conan;
+consider Conan_can_see_Gotrek;
+consider where_is_Gwaigilion;
+consider I_can_see_Gwaigilion;
+consider Gotrek_can_see_Gwaigilion;
+consider Gwaigilion_can_see_Gotrek;
+consider Gwaigilion_can_see_Conan;
+consider Conan_can_see_Gwaigilion;
+
+
+"I am Gotrek and I always can see myself.";
+
+if (initial value I_can_see_Gotrek == false)
+{
+    impossible;
+}
+
+"Everyone can see himself.";
+
+if (initial value (X:person)_can_see_(X:person) == false)
+{
+    impossible;
+}
+
+"I am Gotrek, so wherever I am Gotrek is as well.";
+
+if (!initial value where_am_I == initial value where_is_Gotrek)
+{
+    impossible;
+}
+
+"I am Gotrek, so whoever Gotrek can see, I can see as well.";
+
+if (!initial value I_can_see_(X:person)==initial value Gotrek_can_see_(X:person))
+{
+    impossible;
+}
+
+"I can see everyone who is in the same place as me.";
+
+if (initial value where_am_I == initial value where_is_(X:person) && initial value I_can_see_(X:person)==false)
+{
+    impossible;
+}
+
+"X cannot see someone who is elsewhere.";
+
+if (!initial value where_is_(X:person) == initial value where_is_(Y:person) && initial value (X:person)_can_see_(Y:person)==true)
+{
+    impossible;
+}
+
+"X must see someone who is in the same place.";
+
+if (initial value where_is_(X:person) == initial value where_is_(Y:person) && initial value (X:person)_can_see_(Y:person)==false)
+{
+    impossible;
+}
+
+
+"If X can see Y then Y can see X.";
+
+if (!initial value (X:person)_can_see_(Y:person)==initial value (Y:person)_can_see_(X:person))
+{
+    impossible;
+}
+
+
+
+report();
+

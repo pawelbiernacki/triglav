@@ -1874,7 +1874,10 @@ public:
          * This attribute equals the amount of all input variable instances and hidden variable instance.
          */
         unsigned amount_of_variable_instances;
-        
+                
+        /**
+         * The max amount of unusual values.
+         */
         unsigned depth;
 
         /**
@@ -1887,6 +1890,9 @@ public:
         private:
             unsigned amount_of_variable_instances;
             
+            /**
+             * The max amount of unusual values.
+             */            
             unsigned depth;
             
             /**
@@ -1905,9 +1911,7 @@ public:
             
             void report(std::ostream & s) const;
             
-            bool get_allows_unusual_values_at(unsigned index) const;
-            
-            const std::vector<int>& get_vector() const { return vector_of_indices_can_be_unusual; }
+            bool get_allows_unusual_values_at(unsigned index) const;                        
             
             vector_of_indices_and_some_other_stuff& operator++();
             
@@ -1941,7 +1945,7 @@ public:
      */
     class my_iterator_for_variable_instances: public my_iterator_for_estimating_variable_instances
     {        
-    private:        
+    public:        
         
         
         /**
@@ -2015,14 +2019,18 @@ public:
             void set_has_exactly_one_usual_value(bool s) { has_exactly_one_usual_value = s; }
             
             bool get_has_exactly_one_usual_value() const { return has_exactly_one_usual_value; }
+            
+            void report(std::ostream & s) const;
         };
+        
+    private:
         
     bool allows_unusual_values;
     bool has_exactly_one_usual_value;
     bool incremented;
     std::string current_variable_instance_name;
     
-    void on_exactly_one_usual_value(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r);
+    void on_exactly_one_usual_value(std::map<std::string, std::list<std::string>::iterator>::iterator & i, unsigned & r);
     
     void on_regular_iteration(std::map<std::string, std::list<std::string>::iterator>::iterator i, unsigned & r);
     
@@ -2042,6 +2050,17 @@ public:
      * how many of the variable instances are correct.
      */
     void calculate_amount_of_checked_variable_instances();
+    
+    
+    void initialize_list_item_if_it_has_usual_values(std::list<std::shared_ptr<variable_instance>>::iterator i, std::map<std::string, list_of_possible_values_and_some_other_stuff>::iterator it);
+    
+    void initialize_list_item_if_it_has_no_usual_values(std::list<std::shared_ptr<variable_instance>>::iterator i, std::map<std::string, list_of_possible_values_and_some_other_stuff>::iterator it);
+    
+    /**
+     * This function is only used by the constructor. It initializes the list of possible values.
+     */
+    void initialize_list_item(std::list<std::shared_ptr<variable_instance>>::iterator i, std::map<std::string, list_of_possible_values_and_some_other_stuff>::iterator it);
+
         
     protected:
         
@@ -2083,16 +2102,18 @@ public:
     private:
         const std::string my_range;
         
+        std::list<std::string>::iterator my_begin_unusual, my_begin_usual, my_end_unusual, my_end_usual;
+        
         void init_for_given_amount_of_checked_variable_instances(unsigned &r, 
                 bool allows_unusual_values, 
                 bool has_exactly_one_usual_value, 
                 std::map<std::string, std::list<std::string>::iterator>::iterator & i,
-                const std::string & variable_name, 
-                std::list<std::string>::iterator my_begin,
-                std::list<std::string>::iterator my_end, bool & continue_flag);
+                const std::string & variable_name, bool & continue_flag);
         
-        void init_for_single_usual_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name,
-            std::list<std::string>::iterator my_begin, std::list<std::string>::iterator my_end, bool & continue_flag);
+        
+        void init_for_unusual_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
+        
+        void init_for_single_usual_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
         
         void init_for_regular_value(unsigned & r, std::map<std::string, std::list<std::string>::iterator>::iterator & i, const std::string & variable_name, bool & continue_flag);
         
@@ -2506,3 +2527,6 @@ public:
 };
 
 }
+
+
+std::ostream & operator<<(std::ostream & s, const triglav::agent::my_iterator_for_variable_instances::list_of_possible_values_and_some_other_stuff & l);

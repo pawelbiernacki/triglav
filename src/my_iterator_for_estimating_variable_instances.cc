@@ -97,6 +97,11 @@ agent::my_iterator_for_estimating_variable_instances::vector_of_indices_and_some
             }
         }
     }
+    
+    DEBUG("after incrementation the vector of indices is ");
+    //report(std::cout);
+    
+    
     return *this;
 }
 
